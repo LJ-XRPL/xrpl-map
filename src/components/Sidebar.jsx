@@ -44,9 +44,16 @@ const Sidebar = () => {
                 </span>
                 {truncateAddress(asset.issuer)}
               </a>
-              <p className="asset-amount">
-                {asset.amount.toLocaleString()} {asset.currency}
-              </p>
+              <div className="asset-stats">
+                <div className="asset-stat-item">
+                  <span className="stat-label">MC</span>
+                  <span>${asset.amount.toLocaleString()}</span>
+                </div>
+                <div className="asset-stat-item">
+                  <span className="stat-label">24H VOL</span>
+                  <span>${(asset.amount * 0.05).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              </div>
             </div>
           ))}
         </div>
