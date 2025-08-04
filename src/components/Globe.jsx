@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import GlobeGL from 'react-globe.gl';
 import rwaData from '../data/rwas.js';
 import stablecoinData from '../data/stablecoins.js';
 import { simulateTransaction } from '../utils/transactionSimulator.js';
 import { TransactionAudio } from '../utils/transactionAudio.js';
 
-const Globe = () => {
+const Globe = ({ onTransactionUpdate }) => {
   const globeRef = useRef();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef();
@@ -17,8 +17,8 @@ const Globe = () => {
   const audioRef = useRef(new TransactionAudio());
 
   // Combine RWA and stablecoin data into a single array for the map
-  const mapData = [
-    ...rwaData.flatMap(region => x
+  const mapData = useMemo(() => [
+    ...rwaData.flatMap(region => 
       region.assets.map(asset => ({
         ...asset,
         type: 'RWA',
@@ -32,7 +32,7 @@ const Globe = () => {
         region: region.region
       }))
     )
-  ];
+  ], []);
 
   // Generate random transaction from random issuer
   const generateRandomTransaction = useCallback(() => {
@@ -43,22 +43,24 @@ const Globe = () => {
 
   // Add new transaction and create firework effect
   const addTransaction = useCallback((transaction) => {
+    // Play transaction sound
+    if (audioEnabled) {
+      audioRef.current.playTransactionSound(transaction.type, transaction.amount);
+    }
+
     setTransactions(prev => {
       const newTransactions = [...prev, transaction];
       // Keep only last 50 transactions for performance
       return newTransactions.slice(-50);
     });
 
-    // Add to recent transactions for sidebar display
     setRecentTransactions(prev => {
       const newRecent = [transaction, ...prev];
-      return newRecent.slice(0, 10); // Keep only 10 most recent
+      // Keep up to 100 recent transactions for a smooth scroll
+      const updated = newRecent.slice(0, 100);
+      onTransactionUpdate?.(updated);
+      return updated;
     });
-
-    // Play transaction sound
-    if (audioEnabled) {
-      audioRef.current.playTransactionSound(transaction.type, transaction.amount);
-    }
 
     // Remove transaction after animation (3 seconds)
     setTimeout(() => {
@@ -200,24 +202,6 @@ const Globe = () => {
         arcDashGap={1}
         arcDashAnimateTime={3000}
       />
-      
-      {/* Transaction feed overlay */}
-      <div className="transaction-feed">
-        <h3>Live Transactions {isSimulationRunning && <span className="live-indicator">●</span>}</h3>
-        {recentTransactions.map(tx => (
-          <div key={tx.id} className="transaction-item">
-            <div className="tx-type" style={{ color: tx.color }}>
-              {tx.type.toUpperCase()}
-            </div>
-            <div className="tx-details">
-              <div className="tx-amount">
-                {tx.amount.toLocaleString()} {tx.currency}
-              </div>
-              <div className="tx-location">{tx.city}</div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };

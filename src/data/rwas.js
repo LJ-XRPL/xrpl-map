@@ -1,4 +1,4 @@
-export default [
+const rwaData = [
   {
     "region": "Americas",
     "assets": [
@@ -59,4 +59,6 @@ export default [
       }
     ]
   }
-] 
+];
+
+export default rwaData; 

@@ -1,4 +1,4 @@
-export default [
+const stablecoinData = [
   {
     "region": "Americas",
     "coins": [
@@ -36,4 +36,6 @@ export default [
       }
     ]
   }
-] 
+];
+
+export default stablecoinData; 

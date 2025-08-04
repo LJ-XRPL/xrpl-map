@@ -27,7 +27,7 @@
   "bugs": {
     "url": "https://github.com/yourusername/xrpl-infra/issues"
   },
-  "homepage": "https://github.com/yourusername/xrpl-infra#readme",
+  "homepage": ".",
   "private": false,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
