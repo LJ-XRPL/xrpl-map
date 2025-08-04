@@ -85,7 +85,7 @@ a {
 
 .sidebar, .endpoints {
   width: 260px;
-  padding: 20px;
+  padding: 6px 20px 20px 20px;
   background-color: #000000;
   border-right: 1px solid #333;
 }
