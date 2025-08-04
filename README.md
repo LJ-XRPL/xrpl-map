@@ -1,70 +1,223 @@
-# Getting Started with Create React App
+# XRPL Infrastructure Dashboard
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A real-time visualization dashboard for XRPL (XRP Ledger) infrastructure, showcasing Real World Assets (RWAs) and Stablecoins with their geographic distribution on an interactive globe.
 
-## Available Scripts
+![XRPL Infrastructure Dashboard](https://img.shields.io/badge/React-18.x-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Deployment](https://img.shields.io/badge/deployment-ready-brightgreen)
 
-In the project directory, you can run:
+## 🌟 Features
 
-### `npm start`
+- **Interactive 3D Globe**: Powered by react-globe.gl with real-time rotation and zoom
+- **Geographic Mapping**: Visual representation of RWA and Stablecoin issuers by city
+- **Real World Assets Tracking**: Left sidebar displays RWAs categorized by geographic region
+- **Stablecoin Monitoring**: Right sidebar shows stablecoins with issuer information
+- **Responsive Design**: Modern, dark theme with full responsive layout
+- **XRPL Integration Ready**: Structured for easy integration with live XRPL data feeds
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🚀 Live Demo
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+[View Live Demo](https://your-deployment-url.vercel.app) *(Replace with actual deployment URL)*
 
-### `npm test`
+## 📱 Screenshots
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Desktop View
+The dashboard displays a full 3D interactive globe with RWA and Stablecoin data in the sidebars.
 
-### `npm run build`
+### Mobile Responsive
+Fully responsive design that works seamlessly across all device sizes.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🛠️ Technology Stack
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Frontend**: React 18.x
+- **3D Visualization**: react-globe.gl, Three.js
+- **Styling**: CSS3 with modern design patterns
+- **Data**: TopoJSON for geographic data
+- **Build Tool**: Create React App
+- **Deployment**: Vercel/Netlify ready
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 📦 Installation
 
-### `npm run eject`
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Quick Start
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/xrpl-infra.git
+   cd xrpl-infra
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+3. **Start development server**
+   ```bash
+   npm start
+   ```
 
-## Learn More
+4. **Open your browser**
+   Navigate to `http://localhost:3000`
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## 🏗️ Project Structure
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```
+xrpl-infra/
+├── public/
+│   ├── index.html          # Main HTML template
+│   └── ...
+├── src/
+│   ├── components/
+│   │   ├── Globe.jsx       # Interactive 3D globe component
+│   │   ├── Sidebar.jsx     # RWA data display
+│   │   └── Stablecoins.jsx # Stablecoin data display
+│   ├── data/
+│   │   ├── rwas.js         # Real World Assets data
+│   │   └── stablecoins.js  # Stablecoin data
+│   ├── App.jsx             # Main application component
+│   ├── App.css             # Global styles
+│   └── index.js            # Application entry point
+├── package.json
+└── README.md
+```
 
-### Code Splitting
+## 🎨 Customization
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Adding New Assets
 
-### Analyzing the Bundle Size
+1. **Real World Assets**: Edit `src/data/rwas.js`
+   ```javascript
+   {
+     "name": "Your Asset Name",
+     "issuer": "rYOUR...",
+     "currency": "USD",
+     "amount": 1000000,
+     "city": "New York",
+     "lat": 40.7128,
+     "lng": -74.0060
+   }
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+2. **Stablecoins**: Edit `src/data/stablecoins.js`
+   ```javascript
+   {
+     "name": "Your Stablecoin",
+     "issuer": "rYOUR...",
+     "currency": "USD",
+     "amount": 5000000,
+     "city": "London",
+     "lat": 51.5074,
+     "lng": -0.1278
+   }
+   ```
 
-### Making a Progressive Web App
+### Styling Customization
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+The project uses a modern dark theme. Main styling can be customized in `src/App.css`:
 
-### Advanced Configuration
+- **Colors**: Update CSS custom properties for consistent theming
+- **Globe**: Modify globe properties in `src/components/Globe.jsx`
+- **Layout**: Adjust sidebar widths and responsive breakpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🚀 Deployment
 
-### Deployment
+### Vercel (Recommended)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. **Install Vercel CLI**
+   ```bash
+   npm i -g vercel
+   ```
 
-### `npm run build` fails to minify
+2. **Deploy**
+   ```bash
+   vercel
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Netlify
+
+1. **Build the project**
+   ```bash
+   npm run build
+   ```
+
+2. **Deploy the `build` folder** to Netlify
+
+### GitHub Pages
+
+1. **Install gh-pages**
+   ```bash
+   npm install --save-dev gh-pages
+   ```
+
+2. **Add to package.json**
+   ```json
+   "homepage": "https://yourusername.github.io/xrpl-infra",
+   "scripts": {
+     "predeploy": "npm run build",
+     "deploy": "gh-pages -d build"
+   }
+   ```
+
+3. **Deploy**
+   ```bash
+   npm run deploy
+   ```
+
+## 🔗 XRPL Integration
+
+This dashboard is designed to easily integrate with live XRPL data. To connect to real XRPL networks:
+
+1. **Install XRPL.js**
+   ```bash
+   npm install xrpl
+   ```
+
+2. **Replace static data** in `src/data/` with API calls to XRPL nodes
+3. **Add real-time updates** using WebSocket connections
+4. **Implement data refresh** mechanisms for live monitoring
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [react-globe.gl](https://github.com/vasturiano/react-globe.gl) for the amazing 3D globe component
+- [XRPL Foundation](https://xrpl.org/) for the XRP Ledger ecosystem
+- [Natural Earth](https://www.naturalearthdata.com/) for geographic data
+- [TopoJSON](https://github.com/topojson/topojson) for efficient geographic data encoding
+
+## 📞 Support
+
+- **Documentation**: [Wiki](https://github.com/yourusername/xrpl-infra/wiki)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/xrpl-infra/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/xrpl-infra/discussions)
+
+## 🗺️ Roadmap
+
+- [ ] Live XRPL data integration
+- [ ] Real-time WebSocket updates
+- [ ] Additional visualization modes
+- [ ] Mobile app version
+- [ ] API endpoint for data access
+- [ ] Advanced filtering and search
+- [ ] Historical data tracking
+- [ ] Multi-language support
+
+---
+
+**Built with ❤️ for the XRPL community**
