@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import GlobeGL from 'react-globe.gl';
 import rwaData from '../data/rwas.js';
 import stablecoinData from '../data/stablecoins.js';
-import { simulateTransaction } from '../utils/transactionSimulator.js';
-import { TransactionAudio } from '../utils/transactionAudio.js';
+import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
+import { getTransactionColor } from '../utils/transactionSimulator.js'; // We can still use the color utility
 
 const Globe = ({ onTransactionUpdate }) => {
   const globeRef = useRef();
@@ -11,86 +11,68 @@ const Globe = ({ onTransactionUpdate }) => {
   const containerRef = useRef();
   const [countries, setCountries] = useState({ features: [] });
   const [transactions, setTransactions] = useState([]);
-  const [recentTransactions, setRecentTransactions] = useState([]);
-  const [isSimulationRunning, setIsSimulationRunning] = useState(true);
-  const [audioEnabled, setAudioEnabled] = useState(true);
-  const audioRef = useRef(new TransactionAudio());
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Combine RWA and stablecoin data into a single array for the map
   const mapData = useMemo(() => [
-    ...rwaData.flatMap(region => 
-      region.assets.map(asset => ({
-        ...asset,
-        type: 'RWA',
-        region: region.region
-      }))
-    ),
-    ...stablecoinData.flatMap(region => 
-      region.coins.map(coin => ({
-        ...coin,
-        type: 'Stablecoin',
-        region: region.region
-      }))
-    )
+    ...rwaData.flatMap(region => region.assets.map(asset => ({ ...asset, type: 'RWA' }))),
+    ...stablecoinData.flatMap(region => region.coins.map(coin => ({ ...coin, type: 'Stablecoin' })))
   ], []);
 
-  // Generate random transaction from random issuer
-  const generateRandomTransaction = useCallback(() => {
-    if (mapData.length === 0) return null;
-    const randomIssuer = mapData[Math.floor(Math.random() * mapData.length)];
-    return simulateTransaction(randomIssuer);
-  }, [mapData]);
+  const issuerAddresses = useMemo(() => [...new Set(mapData.map(item => item.issuer))], [mapData]);
 
-  // Add new transaction and create firework effect
-  const addTransaction = useCallback((transaction) => {
-    // Play transaction sound
-    if (audioEnabled) {
-      audioRef.current.playTransactionSound(transaction.type, transaction.amount);
+  useEffect(() => {
+    const init = async () => {
+      await connect();
+      setIsConnected(true);
+    };
+    init();
+
+    return () => {
+      disconnect();
+    };
+  }, []);
+  
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const handleTransaction = (tx) => {
+      const issuer = mapData.find(item => item.issuer === tx.transaction.Account);
+      if (!issuer) return;
+
+      const newTransaction = {
+        id: tx.transaction.hash,
+        from: tx.transaction.Account,
+        to: tx.transaction.Destination,
+        amount: tx.transaction.Amount.value || tx.transaction.Amount,
+        currency: tx.transaction.Amount.currency || 'XRP',
+        type: tx.transaction.TransactionType,
+        timestamp: Date.now(),
+        lat: issuer.lat,
+        lng: issuer.lng,
+        city: issuer.city,
+        issuerName: issuer.name,
+        color: getTransactionColor(tx.transaction.TransactionType)
+      };
+
+      setTransactions(prev => [...prev, newTransaction].slice(-50));
+      onTransactionUpdate?.(prev => [newTransaction, ...prev].slice(0, 100));
+
+      setTimeout(() => {
+        setTransactions(prev => prev.filter(t => t.id !== newTransaction.id));
+      }, 3000);
+    };
+
+    if (issuerAddresses.length > 0) {
+      console.log('Subscribing to addresses:', issuerAddresses);
+      subscribeToTransactions(issuerAddresses, handleTransaction);
     }
 
-    setTransactions(prev => {
-      const newTransactions = [...prev, transaction];
-      // Keep only last 50 transactions for performance
-      return newTransactions.slice(-50);
-    });
-
-    setRecentTransactions(prev => {
-      const newRecent = [transaction, ...prev];
-      // Keep up to 100 recent transactions for a smooth scroll
-      const updated = newRecent.slice(0, 100);
-      onTransactionUpdate?.(updated);
-      return updated;
-    });
-
-    // Remove transaction after animation (3 seconds)
-    setTimeout(() => {
-      setTransactions(prev => prev.filter(tx => tx.id !== transaction.id));
-    }, 3000);
-  }, [audioEnabled]);
-
-  // Transaction simulation loop
-  useEffect(() => {
-    if (!isSimulationRunning) return;
-
-    const interval = setInterval(() => {
-      const transaction = generateRandomTransaction();
-      if (transaction) {
-        addTransaction(transaction);
+    return () => {
+      if (issuerAddresses.length > 0) {
+        unsubscribeFromTransactions(issuerAddresses);
       }
-    }, Math.random() * 3000 + 1000); // Random interval between 1-4 seconds
-
-    return () => clearInterval(interval);
-  }, [generateRandomTransaction, addTransaction, isSimulationRunning]);
-
-  // Handle user interaction to resume audio context
-  const handleUserInteraction = useCallback(() => {
-    audioRef.current.resume();
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('click', handleUserInteraction);
-    return () => document.removeEventListener('click', handleUserInteraction);
-  }, [handleUserInteraction]);
+    };
+  }, [isConnected, issuerAddresses, mapData, onTransactionUpdate]);
 
   useEffect(() => {
     fetch('//unpkg.com/world-atlas/countries-110m.json')
@@ -100,7 +82,7 @@ const Globe = ({ onTransactionUpdate }) => {
         setCountries(geoJson);
       });
   }, []);
-
+  
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
@@ -122,36 +104,9 @@ const Globe = ({ onTransactionUpdate }) => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const toggleSimulation = () => {
-    setIsSimulationRunning(!isSimulationRunning);
-  };
-
-  const toggleAudio = () => {
-    const newAudioState = audioRef.current.toggle();
-    setAudioEnabled(newAudioState);
-  };
-
+  
   return (
     <div ref={containerRef} className="globe-container">
-      {/* Control panel */}
-      <div className="control-panel">
-        <button 
-          className={`control-btn ${isSimulationRunning ? 'active' : ''}`}
-          onClick={toggleSimulation}
-          title={isSimulationRunning ? 'Pause Simulation' : 'Resume Simulation'}
-        >
-          {isSimulationRunning ? '⏸️' : '▶️'}
-        </button>
-        <button 
-          className={`control-btn ${audioEnabled ? 'active' : ''}`}
-          onClick={toggleAudio}
-          title={audioEnabled ? 'Mute Audio' : 'Enable Audio'}
-        >
-          {audioEnabled ? '🔊' : '🔇'}
-        </button>
-      </div>
-
       <GlobeGL
         ref={globeRef}
         backgroundColor="#000000"
@@ -165,21 +120,19 @@ const Globe = ({ onTransactionUpdate }) => {
         showAtmosphere={true}
         atmosphereColor={'#ffffff'}
         atmosphereAltitude={0.15}
-        
-        // Static issuer points
         pointsData={mapData}
         pointLat={d => d.lat}
         pointLng={d => d.lng}
         pointColor={d => d.type === 'RWA' ? '#00ff88' : '#ff6b6b'}
         pointAltitude={0.02}
         pointRadius={0.8}
-        pointLabel={d => `<div style="color: white; background: rgba(0,0,0,0.8); padding: 5px; border-radius: 3px;">
-          <strong>${d.name}</strong><br/>
-          ${d.city}<br/>
-          ${d.type}: ${d.amount.toLocaleString()} ${d.currency}
-        </div>`}
-        
-        // Transaction fireworks
+        pointLabel={d => `
+          <div style="color: white; background: rgba(0,0,0,0.8); padding: 5px; border-radius: 3px;">
+            <strong>${d.name}</strong><br/>
+            ${d.city}<br/>
+            ${d.type}: ${d.amount.toLocaleString()} ${d.currency}
+          </div>
+        `}
         ringsData={transactions}
         ringLat={d => d.lat}
         ringLng={d => d.lng}
@@ -188,8 +141,6 @@ const Globe = ({ onTransactionUpdate }) => {
         ringRepeatPeriod={3000}
         ringColor={d => d.color}
         ringResolution={64}
-        
-        // Transaction arcs (optional - for more visual effect)
         arcsData={transactions}
         arcStartLat={d => d.lat}
         arcStartLng={d => d.lng}

@@ -1,5 +1,6 @@
 import React from 'react';
 import stablecoinData from '../data/stablecoins.js';
+import { truncateAddress, getExplorerLink } from '../utils/formatters.js';
 
 const Stablecoins = () => (
   <aside className="endpoints">
@@ -12,7 +13,14 @@ const Stablecoins = () => (
           <div className="asset" key={coin.name}>
             <p className="asset-name">{coin.name}</p>
             <p className="asset-city">{coin.city}</p>
-            <p className="asset-issuer">{coin.issuer}</p>
+            <a 
+              href={getExplorerLink(coin.issuer)} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="asset-issuer"
+            >
+              {truncateAddress(coin.issuer)}
+            </a>
             <p className="asset-amount">
               {coin.amount.toLocaleString()} {coin.currency}
             </p>

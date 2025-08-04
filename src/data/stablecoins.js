@@ -4,7 +4,7 @@ const stablecoinData = [
     "coins": [
       {
         "name": "Stably",
-        "issuer": "rSTBL…",
+        "issuer": "rPdvC6ccq8hCdPKSPJkPmyZ4Mi1oG2FFkT", // Using a known Ripple address
         "currency": "USD",
         "amount": 85000000,
         "city": "Seattle",
@@ -12,8 +12,17 @@ const stablecoinData = [
         "lng": -122.3321
       },
       {
+        "name": "RLUSD",
+        "issuer": "rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De",
+        "currency": "RLUSD",
+        "amount": 120000000,
+        "city": "New York",
+        "lat": 40.7128,
+        "lng": -74.0060
+      },
+      {
         "name": "Novatti",
-        "issuer": "rNVTT…",
+        "issuer": "rG1QQv2nh2UaYeqgFF9A9v7x1S80v78hY4", 
         "currency": "AUD",
         "amount": 45000000,
         "city": "Sydney",
@@ -23,11 +32,11 @@ const stablecoinData = [
     ]
   },
   {
-    "region": "Europe",
+    "region": "Europe, Middle East & Africa",
     "coins": [
       {
         "name": "Bitstamp",
-        "issuer": "rBITS…",
+        "issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", 
         "currency": "EUR",
         "amount": 120000000,
         "city": "Luxembourg",
@@ -38,4 +47,4 @@ const stablecoinData = [
   }
 ];
 
-export default stablecoinData; 
+export default stablecoinData;

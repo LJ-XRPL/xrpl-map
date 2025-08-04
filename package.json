@@ -39,7 +39,8 @@
     "react-globe.gl": "^2.35.0",
     "react-scripts": "5.0.1",
     "three": "^0.179.1",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "xrpl": "^4.4.0"
   },
   "scripts": {
     "start": "react-scripts start",

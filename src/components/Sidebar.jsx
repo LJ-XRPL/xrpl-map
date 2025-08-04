@@ -1,5 +1,6 @@
 import React from 'react';
 import rwaData from '../data/rwas.js';
+import { truncateAddress, getExplorerLink } from '../utils/formatters.js';
 
 const Sidebar = () => (
   <aside className="sidebar">
@@ -12,7 +13,14 @@ const Sidebar = () => (
           <div className="asset" key={asset.name}>
             <p className="asset-name">{asset.name}</p>
             <p className="asset-city">{asset.city}</p>
-            <p className="asset-issuer">{asset.issuer}</p>
+            <a 
+              href={getExplorerLink(asset.issuer)} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="asset-issuer"
+            >
+              {truncateAddress(asset.issuer)}
+            </a>
             <p className="asset-amount">
               {asset.amount.toLocaleString()} {asset.currency}
             </p>

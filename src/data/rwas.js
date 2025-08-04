@@ -4,7 +4,7 @@ const rwaData = [
     "assets": [
       {
         "name": "ACME Real Estate",
-        "issuer": "rACME…",
+        "issuer": "rPdvC6ccq8hCdPKSPJkPmyZ4Mi1oG2FFkT", 
         "currency": "USD",
         "amount": 125000000,
         "city": "New York",
@@ -13,7 +13,7 @@ const rwaData = [
       },
       {
         "name": "Brasilia Agri-Fund",
-        "issuer": "rBRSA…",
+        "issuer": "rG1QQv2nh2UaYeqgFF9A9v7x1S80v78hY4", 
         "currency": "BRL",
         "amount": 75000000,
         "city": "São Paulo",
@@ -23,11 +23,11 @@ const rwaData = [
     ]
   },
   {
-    "region": "Europe",
+    "region": "Europe, Middle East & Africa",
     "assets": [
       {
         "name": "Euro Properties",
-        "issuer": "rEUPR…",
+        "issuer": "rHb9CJAWyB4rj91VRWn96DkukG4bwdtyTh", 
         "currency": "EUR",
         "amount": 250000000,
         "city": "Frankfurt",
@@ -41,7 +41,7 @@ const rwaData = [
     "assets": [
       {
         "name": "SG Twin Towers",
-        "issuer": "rSGTT…",
+        "issuer": "rhub8VRN55s94qWkdv6bK6r4iFF2M8jXwo", 
         "currency": "SGD",
         "amount": 450000000,
         "city": "Singapore",
@@ -50,7 +50,7 @@ const rwaData = [
       },
       {
         "name": "Tokyo Infra Bond",
-        "issuer": "rTYOB…",
+        "issuer": "rU2mEJSLqBRkYLVTv55rFTgQajkLTf85bV", 
         "currency": "JPY",
         "amount": 18000000000,
         "city": "Tokyo",
@@ -61,4 +61,4 @@ const rwaData = [
   }
 ];
 
-export default rwaData; 
+export default rwaData;
