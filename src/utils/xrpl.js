@@ -35,9 +35,11 @@ export const getAccountTransactions = async (address, limit = 10) => {
   }
 
   try {
-    // Only log for BBRL issuer
+    // Only log for BBRL and EUROP issuers
     if (address === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
       console.log(`🔍 Fetching transactions for BBRL issuer: ${address}`);
+    } else if (address === 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK') {
+      console.log(`🔍 Fetching transactions for EUROP issuer: ${address}`);
     }
     
     const response = await client.request({
@@ -51,7 +53,7 @@ export const getAccountTransactions = async (address, limit = 10) => {
 
     const transactions = response.result.transactions || [];
     
-    // Only log for BBRL issuer
+    // Only log for BBRL and EUROP issuers
     if (address === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
       console.log(`📊 Found ${transactions.length} transactions for BBRL issuer`);
       
@@ -59,13 +61,22 @@ export const getAccountTransactions = async (address, limit = 10) => {
       if (transactions.length > 0) {
         console.log('🔍 First BBRL transaction structure:', JSON.stringify(transactions[0], null, 2));
       }
+    } else if (address === 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK') {
+      console.log(`📊 Found ${transactions.length} transactions for EUROP issuer`);
+      
+      // Debug: log the first transaction structure
+      if (transactions.length > 0) {
+        console.log('🔍 First EUROP transaction structure:', JSON.stringify(transactions[0], null, 2));
+      }
     }
     
     return transactions;
   } catch (error) {
-    // Only log errors for BBRL issuer
+    // Only log errors for BBRL and EUROP issuers
     if (address === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
       console.error(`❌ Error fetching transactions for BBRL ${address}:`, error.message);
+    } else if (address === 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK') {
+      console.error(`❌ Error fetching transactions for EUROP ${address}:`, error.message);
     }
     return [];
   }
@@ -76,10 +87,11 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
   const seenTransactions = new Set();
   
   const pollTransactions = async () => {
-    // Only log polling activity for BBRL
+    // Only log polling activity for BBRL and EUROP
     const bbrlAddress = 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt';
-    if (addresses.includes(bbrlAddress)) {
-      console.log('🔄 Polling for BBRL transactions...');
+    const europAddress = 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK';
+    if (addresses.includes(bbrlAddress) || addresses.includes(europAddress)) {
+      console.log('🔄 Polling for BBRL and EUROP transactions...');
     }
     
     for (const address of addresses) {
@@ -92,9 +104,11 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           const hash = txData.hash;
           
           if (!tx || !hash) {
-            // Only log warnings for BBRL
+            // Only log warnings for BBRL and EUROP
             if (address === bbrlAddress) {
               console.warn('⚠️ Invalid BBRL transaction structure:', txData);
+            } else if (address === europAddress) {
+              console.warn('⚠️ Invalid EUROP transaction structure:', txData);
             }
             continue;
           }
@@ -106,9 +120,15 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           
           seenTransactions.add(hash);
           
-          // Only log new transactions for BBRL
+          // Only log new transactions for BBRL and EUROP
           if (address === bbrlAddress) {
             console.log(`🎉 NEW BBRL TRANSACTION: ${hash}`);
+            console.log(`   Type: ${tx.TransactionType}`);
+            console.log(`   From: ${tx.Account}`);
+            console.log(`   To: ${tx.Destination || 'N/A'}`);
+            console.log(`   Amount:`, tx.Amount);
+          } else if (address === europAddress) {
+            console.log(`🎉 NEW EUROP TRANSACTION: ${hash}`);
             console.log(`   Type: ${tx.TransactionType}`);
             console.log(`   From: ${tx.Account}`);
             console.log(`   To: ${tx.Destination || 'N/A'}`);
@@ -124,9 +144,11 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           });
         }
       } catch (error) {
-        // Only log errors for BBRL
+        // Only log errors for BBRL and EUROP
         if (address === bbrlAddress) {
           console.error(`❌ Error polling transactions for BBRL ${address}:`, error.message);
+        } else if (address === europAddress) {
+          console.error(`❌ Error polling transactions for EUROP ${address}:`, error.message);
         }
       }
     }
@@ -147,9 +169,15 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
 
 export const subscribeToTransactions = (addresses, onTransaction) => {
   const bbrlAddress = 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt';
+  const europAddress = 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK';
+  
   if (addresses.includes(bbrlAddress)) {
     console.log('🚀 Starting BBRL transaction monitoring for:', bbrlAddress);
   }
+  if (addresses.includes(europAddress)) {
+    console.log('🚀 Starting EUROP transaction monitoring for:', europAddress);
+  }
+  
   return startTransactionPolling(addresses, onTransaction);
 };
 

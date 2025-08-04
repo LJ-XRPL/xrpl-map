@@ -92,6 +92,8 @@ const Globe = ({ onTransactionUpdate }) => {
             currency = 'RLUSD';
           } else if (tx.Amount.issuer === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
             currency = 'BBRL';
+          } else if (tx.Amount.issuer === 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK') {
+            currency = 'EUROP';
           } else {
             // Fallback to issuer currency from our data
             currency = issuer.currency;
@@ -122,9 +124,11 @@ const Globe = ({ onTransactionUpdate }) => {
         color: getTransactionColor(tx.TransactionType || 'Payment')
       };
 
-      // Only log for BBRL transactions
+      // Only log for BBRL and EUROP transactions
       if (issuer.currency === 'BBRL') {
         console.log('✅ Processed BBRL transaction for display:', newTransaction);
+      } else if (issuer.currency === 'EUROP') {
+        console.log('✅ Processed EUROP transaction for display:', newTransaction);
       }
 
       setTransactions(prev => [...prev, newTransaction].slice(-50));

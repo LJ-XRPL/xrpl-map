@@ -114,6 +114,29 @@ a {
   padding-bottom: 4px;
 }
 
+.section-header {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.section-header:hover {
+  color: #00ff88;
+}
+
+.collapse-icon {
+  font-size: 0.8rem;
+  transition: transform 0.2s ease;
+  color: #888;
+}
+
+.collapse-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
 .badge.red {
   background: #ffffff;
   color: #000000;
@@ -182,6 +205,21 @@ a {
   color: #888888;
   margin: 0 0 4px 0;
   font-family: monospace;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.asset-issuer:hover {
+  color: #00ff88;
+  text-decoration: underline;
+}
+
+.flag-emoji {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .asset-amount {

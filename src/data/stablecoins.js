@@ -21,6 +21,24 @@ const stablecoinData = [
         "lng": -46.6333
       }
     ]
+  },
+  {
+    "region": "Europe, Middle East & Africa",
+    "coins": [
+      {
+        "name": "EUROP",
+        "issuer": "rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK",
+        "currency": "EUROP",
+        "amount": 41373,
+        "city": "Paris",
+        "lat": 48.8566,
+        "lng": 2.3522
+      }
+    ]
+  },
+  {
+    "region": "Asia-Pacific",
+    "coins": []
   }
 ];
 
