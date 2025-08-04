@@ -67,6 +67,7 @@ a {
   width: 95vmin;
   height: 95vmin;
   cursor: grab;
+  position: relative;
 }
 
 .asset {
@@ -100,4 +101,194 @@ a {
   color: #ffffff;
   margin: 0;
   font-weight: bold;
+}
+
+/* Transaction feed overlay */
+.transaction-feed {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 300px;
+  max-height: 400px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 15px;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+  z-index: 10;
+}
+
+.transaction-feed h3 {
+  color: #ffffff;
+  margin: 0 0 15px 0;
+  font-size: 1rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+}
+
+.transaction-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #222;
+  animation: slideInRight 0.3s ease-out, fadeOut 0.5s ease-in 9.5s forwards;
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.tx-type {
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  min-width: 60px;
+  text-align: center;
+}
+
+.tx-details {
+  flex: 1;
+  margin-left: 10px;
+  text-align: right;
+}
+
+.tx-amount {
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.tx-location {
+  color: #bbbbbb;
+  font-size: 0.7rem;
+}
+
+/* Animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Responsive design for transaction feed */
+@media (max-width: 768px) {
+  .transaction-feed {
+    width: 250px;
+    right: 10px;
+    top: 10px;
+    max-height: 300px;
+    padding: 10px;
+  }
+  
+  .transaction-feed h3 {
+    font-size: 0.9rem;
+  }
+  
+  .tx-amount {
+    font-size: 0.7rem;
+  }
+  
+  .tx-location {
+    font-size: 0.6rem;
+  }
+}
+
+/* Pulsing effect for active issuers */
+.issuer-point {
+  animation: pulse 2s infinite;
+}
+
+/* Control panel */
+.control-panel {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.control-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #333;
+  background: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #666;
+  transform: scale(1.1);
+}
+
+.control-btn.active {
+  background: rgba(0, 255, 136, 0.2);
+  border-color: #00ff88;
+}
+
+/* Live indicator */
+.live-indicator {
+  color: #ff4444;
+  animation: blink 1s infinite;
+  font-size: 0.8rem;
+  margin-left: 5px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+/* Enhanced transaction item animations */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Mobile responsive updates */
+@media (max-width: 768px) {
+  .control-panel {
+    top: 10px;
+    left: 10px;
+  }
+  
+  .control-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1rem;
+  }
 }
