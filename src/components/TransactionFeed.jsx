@@ -12,7 +12,7 @@ const TransactionFeed = ({ transactions }) => {
             <div className="tx-issuer">{tx.issuerName}</div>
             <div className="tx-details">
               <div className="tx-amount">
-                {tx.amount.toLocaleString()} {tx.currency}
+                {typeof tx.amount === 'number' ? tx.amount.toLocaleString() : tx.amount} {tx.currency}
               </div>
               <div className="tx-location">{tx.city}</div>
             </div>
@@ -27,7 +27,7 @@ const TransactionFeed = ({ transactions }) => {
             <div className="tx-issuer">{tx.issuerName}</div>
             <div className="tx-details">
               <div className="tx-amount">
-                {tx.amount.toLocaleString()} {tx.currency}
+                {typeof tx.amount === 'number' ? tx.amount.toLocaleString() : tx.amount} {tx.currency}
               </div>
               <div className="tx-location">{tx.city}</div>
             </div>

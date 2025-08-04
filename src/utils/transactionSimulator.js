@@ -17,10 +17,22 @@ export const getRandomTransactionType = () => {
 
 export const getTransactionColor = (type) => {
   const colors = {
-    payment: '#00ff88',  // Green for payments
-    offer: '#ff6b6b',    // Red for offers
-    trust: '#4ecdc4',    // Teal for trust lines
-    escrow: '#ffe66d'    // Yellow for escrow
+    // Simulated transaction types
+    payment: '#00ff88',      // Green for payments
+    offer: '#ff6b6b',        // Red for offers
+    trust: '#4ecdc4',        // Teal for trust lines
+    escrow: '#ffe66d',       // Yellow for escrow
+    
+    // XRPL transaction types
+    Payment: '#00ff88',      // Green for payments
+    OfferCreate: '#ff6b6b',  // Red for offer creation
+    OfferCancel: '#ff9500',  // Orange for offer cancellation
+    TrustSet: '#4ecdc4',     // Teal for trust lines
+    EscrowCreate: '#ffe66d', // Yellow for escrow creation
+    EscrowFinish: '#90EE90', // Light green for escrow finish
+    NFTokenMint: '#9d4edd',  // Purple for NFTs
+    CheckCreate: '#ffd23f',  // Gold for checks
+    CheckCash: '#06ffa5'     // Mint green for check cashing
   };
   return colors[type] || '#ffffff';
 };
