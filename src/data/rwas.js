@@ -21,10 +21,10 @@ const rwaData = [
     "region": "Asia-Pacific",
     "assets": [
       {
-        "name": "OpenEden T-Bills",
-        "issuer": "rsU8y8bB6E7Q2oGi2ZZxqNauUq85fk5R7K",
+        "name": "OpenEden T-BILLS",
+        "issuer": "rJFhJyqyfkFgE2QehL2xqGQu7ozqr1qGmC",
         "currency": "OE",
-        "amount": 60200000,
+        "amount": 50000000,
         "city": "Singapore",
         "lat": 1.3521,
         "lng": 103.8198

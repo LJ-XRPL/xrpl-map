@@ -314,6 +314,19 @@ a {
   animation: slideInRight 0.3s ease-out, fadeOut 0.5s ease-in 9.5s forwards;
 }
 
+.transaction-link {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.transaction-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .transaction-item:last-child {
   border-bottom: none;
 }

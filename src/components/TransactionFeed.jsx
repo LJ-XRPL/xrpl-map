@@ -1,11 +1,18 @@
 import React from 'react';
+import { getTransactionExplorerLink } from '../utils/formatters.js';
 
 const TransactionFeed = ({ transactions }) => {
   return (
     <div className="transaction-feed">
       <div className="transaction-stream">
         {transactions.map(tx => (
-          <div key={`${tx.id}-1`} className="transaction-item">
+          <a 
+            key={`${tx.id}-1`} 
+            href={getTransactionExplorerLink(tx.hash)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="transaction-item transaction-link"
+          >
             <div className="tx-type" style={{ color: tx.color }}>
               {tx.type.toUpperCase()}
             </div>
@@ -16,11 +23,17 @@ const TransactionFeed = ({ transactions }) => {
               </div>
               <div className="tx-location">{tx.city}</div>
             </div>
-          </div>
+          </a>
         ))}
         {/* Duplicate for seamless scroll */}
         {transactions.map(tx => (
-          <div key={`${tx.id}-2`} className="transaction-item">
+          <a 
+            key={`${tx.id}-2`} 
+            href={getTransactionExplorerLink(tx.hash)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="transaction-item transaction-link"
+          >
             <div className="tx-type" style={{ color: tx.color }}>
               {tx.type.toUpperCase()}
             </div>
@@ -31,7 +44,7 @@ const TransactionFeed = ({ transactions }) => {
               </div>
               <div className="tx-location">{tx.city}</div>
             </div>
-          </div>
+          </a>
         ))}
       </div>
     </div>
