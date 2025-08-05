@@ -111,6 +111,7 @@ const Globe = ({ onTransactionUpdate }) => {
 
       const newTransaction = {
         id: hash,
+        hash: hash, // Add hash property for explorer links
         from: tx.Account,
         to: tx.Destination || 'Market',
         amount: amount,
