@@ -41,6 +41,7 @@ const Sidebar = () => {
                   {asset.city === 'New York' && '🇺🇸'}
                   {asset.city === 'São Paulo' && '🇧🇷'}
                   {asset.city === 'Paris' && '🇫🇷'}
+                  {asset.city === 'Singapore' && '🇸🇬'}
                 </span>
                 {truncateAddress(asset.issuer)}
               </a>
