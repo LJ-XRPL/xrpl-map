@@ -16,17 +16,22 @@ const Stablecoins = () => {
     <aside className="endpoints">
       <h1 className="title">Stablecoins</h1>
       <p className="tagline">on the XRPL</p>
-      {stablecoinData.map(region => (
-        <div className="section" key={region.region}>
-          <h2 
-            className="section-header" 
-            onClick={() => toggleRegion(region.region)}
-          >
-            <span className={`collapse-icon ${collapsedRegions[region.region] ? 'collapsed' : ''}`}>
-              ▼
-            </span>
-            {region.region}
-          </h2>
+      {stablecoinData.map(region => {
+        const regionTotal = region.coins.reduce((total, coin) => total + coin.amount, 0);
+        return (
+          <div className="section" key={region.region}>
+            <h2 
+              className="section-header" 
+              onClick={() => toggleRegion(region.region)}
+            >
+              <span className={`collapse-icon ${collapsedRegions[region.region] ? 'collapsed' : ''}`}>
+                ▼
+              </span>
+              <div className="region-info">
+                <span className="region-name">{region.region}</span>
+                <span className="region-total">${(regionTotal / 1000000).toFixed(1)}M</span>
+              </div>
+            </h2>
           {!collapsedRegions[region.region] && region.coins.map(coin => (
             <div className="asset" key={coin.name}>
               <p className="asset-name">{coin.name}</p>
@@ -56,8 +61,9 @@ const Stablecoins = () => {
               </div>
             </div>
           ))}
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </aside>
   );
 };

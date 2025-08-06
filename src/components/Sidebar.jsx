@@ -16,19 +16,24 @@ const Sidebar = () => {
     <aside className="sidebar">
       <h1 className="title">Real-World Assets</h1>
       <p className="tagline">on the XRPL</p>
-      {rwaData.map(region => (
-        <div className="section" key={region.region}>
-          <h2 
-            className="section-header" 
-            onClick={() => toggleRegion(region.region)}
-          >
-            <span className={`collapse-icon ${collapsedRegions[region.region] ? 'collapsed' : ''}`}>
-              ▼
-            </span>
-            {region.region}
-          </h2>
-          {!collapsedRegions[region.region] && region.assets.map(asset => (
-            <div className="asset" key={asset.name}>
+      {rwaData.map(region => {
+        const regionTotal = region.assets.reduce((total, asset) => total + asset.amount, 0);
+        return (
+          <div className="section" key={region.region}>
+            <h2 
+              className="section-header" 
+              onClick={() => toggleRegion(region.region)}
+            >
+              <span className={`collapse-icon ${collapsedRegions[region.region] ? 'collapsed' : ''}`}>
+                ▼
+              </span>
+              <div className="region-info">
+                <span className="region-name">{region.region}</span>
+                <span className="region-total">${(regionTotal / 1000000).toFixed(1)}M</span>
+              </div>
+            </h2>
+            {!collapsedRegions[region.region] && region.assets.map(asset => (
+              <div className="asset" key={asset.name}>
               <p className="asset-name">{asset.name}</p>
               <p className="asset-city">{asset.city}</p>
               <a 
@@ -60,8 +65,9 @@ const Sidebar = () => {
               </div>
             </div>
           ))}
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </aside>
   );
 };

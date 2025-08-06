@@ -123,6 +123,27 @@ a {
   user-select: none;
 }
 
+.region-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+
+.region-name {
+  flex: 1;
+}
+
+.region-total {
+  font-size: 0.9rem;
+  color: #00ff88;
+  font-weight: bold;
+  background: rgba(0, 255, 136, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
 .section-header:hover {
   color: #00ff88;
 }
