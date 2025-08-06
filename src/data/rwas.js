@@ -13,7 +13,7 @@ const rwaData = [
       },
       {
         "name": "Ondo Finance OUSG",
-        "issuer": "rUSDYxnhHRTL5CmWJ4WXnQHVFE5cBWPXkh",
+        "issuer": "rHuiXXjHLpMP8ZE9sSQU5aADQVWDwv6h5p",
         "currency": "OUSG",
         "amount": 30000000,
         "city": "New York",
