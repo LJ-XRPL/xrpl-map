@@ -5,6 +5,7 @@ import stablecoinData from '../data/stablecoins.js';
 import RealEstateOverlay from './RealEstateOverlay.jsx';
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
+import { parseTransaction, shouldLogTransaction } from '../utils/transactionParser.js';
 
 const Globe = ({ onTransactionUpdate }) => {
   const globeRef = useRef();
@@ -60,96 +61,22 @@ const Globe = ({ onTransactionUpdate }) => {
     if (!isConnected) return;
 
     const handleTransaction = (txData) => {
-      const tx = txData.transaction;
-      const hash = txData.hash || tx.hash;
+      // Use the transaction parser utility
+      const parsedTransaction = parseTransaction(txData, mapData);
       
-      // Find the correct issuer based on the transaction account
-      // This works for both RLUSD and BBRL issuers
-      const issuer = mapData.find(item => 
-        item.issuer === tx.Account || 
-        item.issuer === tx.Destination ||
-        // For offers, check if the currency matches our tracked issuers
-        (tx.TakerPays && typeof tx.TakerPays === 'object' && tx.TakerPays.issuer === item.issuer) ||
-        (tx.TakerGets && typeof tx.TakerGets === 'object' && tx.TakerGets.issuer === item.issuer)
-      );
-      
-      if (!issuer) {
-        // Only log for BBRL since we silenced RLUSD logs
-        if (tx.Account === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
-          console.log('🤷 No matching issuer found for BBRL transaction');
-        }
-        return;
+      if (!parsedTransaction) {
+        return; // Transaction was filtered out or invalid
       }
 
-      // Parse amount and currency based on transaction type and issuer
-      let amount = 'Unknown';
-      let currency = issuer.currency;
-      
-      // For OfferCreate transactions, use TakerPays amount
-      if (tx.TransactionType === 'OfferCreate' && tx.TakerPays) {
-        if (typeof tx.TakerPays === 'object' && tx.TakerPays.value) {
-          amount = parseFloat(tx.TakerPays.value).toFixed(2);
-          currency = issuer.currency;
-        } else if (typeof tx.TakerPays === 'string') {
-          // XRP amount in drops
-          amount = (parseInt(tx.TakerPays) / 1000000).toFixed(2);
-          currency = 'XRP';
-        }
-      } else if (tx.TransactionType === 'OfferCancel') {
-        amount = 'Cancelled';
-        currency = issuer.currency;
-      } else if (tx.Amount) {
-        // Standard payment
-        if (typeof tx.Amount === 'string') {
-          amount = (parseInt(tx.Amount) / 1000000).toFixed(2);
-          currency = 'XRP';
-        } else if (typeof tx.Amount === 'object' && tx.Amount.value) {
-          const amountValue = parseFloat(tx.Amount.value);
-          amount = isNaN(amountValue) ? '0.00' : amountValue.toFixed(2);
-          
-          // For token payments, determine currency based on issuer address
-          if (tx.Amount.issuer === 'rMxCKbEDwqr76QuheSUMdEGf4B9xJ8m5De') {
-            currency = 'RLUSD';
-          } else if (tx.Amount.issuer === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
-            currency = 'BBRL';
-          } else if (tx.Amount.issuer === 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK') {
-            currency = 'EUROP';
-          } else {
-            // Fallback to issuer currency from our data
-            currency = issuer.currency;
-          }
-        } else if (typeof tx.Amount === 'object') {
-          // Handle case where Amount object exists but no value field
-          amount = '0.00';
-          currency = issuer.currency;
-        }
-      } else {
-        // Fallback for transactions without Amount field
-        amount = '0.00';
-        currency = issuer.currency;
-      }
-
+      // Add additional properties for the globe visualization
       const newTransaction = {
-        id: hash,
-        hash: hash, // Add hash property for explorer links
-        from: tx.Account,
-        to: tx.Destination || 'Market',
-        amount: amount,
-        currency: currency,
-        type: tx.TransactionType || 'Unknown',
-        timestamp: Date.now(),
-        lat: issuer.lat,
-        lng: issuer.lng,
-        city: issuer.city,
-        issuerName: issuer.name,
-        color: getTransactionColor(tx.TransactionType || 'Payment')
+        ...parsedTransaction,
+        color: getTransactionColor(parsedTransaction.type)
       };
 
       // Only log for BBRL and EUROP transactions
-      if (issuer.currency === 'BBRL') {
-        console.log('✅ Processed BBRL transaction for display:', newTransaction);
-      } else if (issuer.currency === 'EUROP') {
-        console.log('✅ Processed EUROP transaction for display:', newTransaction);
+      if (shouldLogTransaction(newTransaction)) {
+        console.log(`✅ Processed ${newTransaction.currency} transaction for display:`, newTransaction);
       }
 
       setTransactions(prev => [...prev, newTransaction].slice(-50));
@@ -211,10 +138,19 @@ const Globe = ({ onTransactionUpdate }) => {
         width={size.width}
         height={size.height}
         showGraticules={true}
+        graticulesLineColor={'rgba(255, 255, 255, 0.1)'}
+        graticulesResolution={10}
         polygonsData={countries.features}
-        polygonCapColor={() => 'rgba(0, 0, 0, 0.7)'}
-        polygonSideColor={() => 'rgba(255, 255, 255, 0.05)'}
-        polygonStrokeColor={() => '#666'}
+        polygonCapColor={d => {
+          // Add subtle color variation based on country properties
+          const baseAlpha = 0.15;
+          const variation = Math.sin(d.properties?.NAME?.length || 0) * 0.05;
+          return `rgba(20, 40, 20, ${baseAlpha + variation})`;
+        }}
+        polygonSideColor={() => 'rgba(255, 255, 255, 0.08)'}
+        polygonStrokeColor={() => 'rgba(255, 255, 255, 0.3)'}
+        polygonStroke={0.5}
+        polygonAltitude={0.01}
         showAtmosphere={true}
         atmosphereColor={'#ffffff'}
         atmosphereAltitude={0.15}

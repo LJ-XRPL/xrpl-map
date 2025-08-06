@@ -19,6 +19,15 @@ const stablecoinData = [
         "city": "São Paulo",
         "lat": -23.5505,
         "lng": -46.6333
+      },
+      {
+        "name": "Circle USDC",
+        "issuer": "rcEGREd8NmkKRE8GE424sksyt1tJVFZwu",
+        "currency": "USDC",
+        "amount": 7000000,
+        "city": "New York",
+        "lat": 40.7128,
+        "lng": -74.0060
       }
     ]
   },
