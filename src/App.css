@@ -434,7 +434,7 @@ a {
   flex-direction: row;
   align-items: center;
   white-space: nowrap;
-  animation: scroll-left 120s linear infinite;
+  animation: scroll-left 300s linear infinite;
 }
 
 .transaction-stream:hover {
