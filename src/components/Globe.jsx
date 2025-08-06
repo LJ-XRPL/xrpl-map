@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import GlobeGL from 'react-globe.gl';
 import rwaData from '../data/rwas.js';
 import stablecoinData from '../data/stablecoins.js';
+import RealEstateOverlay from './RealEstateOverlay.jsx';
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 
@@ -18,6 +19,25 @@ const Globe = ({ onTransactionUpdate }) => {
     ...rwaData.flatMap(region => region.assets.map(asset => ({ ...asset, type: 'RWA' }))),
     ...stablecoinData.flatMap(region => region.coins.map(coin => ({ ...coin, type: 'Stablecoin' })))
   ], []);
+
+  // Filter out real estate assets from regular points (they'll be shown as 3D buildings)
+  const filteredMapData = useMemo(() => {
+    return mapData.filter(item => {
+      // Remove real estate related assets from regular points
+      if (item.type === 'RWA' && (
+        item.currency === 'DLD' || // Dubai Land Department
+        item.name.toLowerCase().includes('real estate') ||
+        item.name.toLowerCase().includes('land') ||
+        item.name.toLowerCase().includes('property')
+      )) {
+        return false;
+      }
+      return true;
+    });
+  }, [mapData]);
+
+  // Get real estate overlay props
+  const realEstateOverlay = RealEstateOverlay({ mapData, globeRef });
 
   const issuerAddresses = useMemo(() => [...new Set(mapData.map(item => item.issuer))], [mapData]);
 
@@ -198,7 +218,7 @@ const Globe = ({ onTransactionUpdate }) => {
         showAtmosphere={true}
         atmosphereColor={'#ffffff'}
         atmosphereAltitude={0.15}
-        pointsData={mapData}
+        pointsData={filteredMapData}
         pointLat={d => d.lat}
         pointLng={d => d.lng}
         pointColor={d => d.type === 'RWA' ? '#00ff88' : '#ff6b6b'}
@@ -230,6 +250,12 @@ const Globe = ({ onTransactionUpdate }) => {
         arcDashLength={2}
         arcDashGap={1}
         arcDashAnimateTime={3000}
+        objectsData={realEstateOverlay.objectsData}
+        objectLat={realEstateOverlay.objectLat}
+        objectLng={realEstateOverlay.objectLng}
+        objectAltitude={realEstateOverlay.objectAltitude}
+        objectThreeObject={realEstateOverlay.objectThreeObject}
+        objectLabel={realEstateOverlay.objectLabel}
       />
       <div className="xrpl-logo-overlay">
         <img src="/xrpl-white.svg" alt="XRPL" className="xrpl-logo" />

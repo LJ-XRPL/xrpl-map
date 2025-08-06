@@ -14,8 +14,18 @@ const rwaData = [
     ]  
   },
   {
-    "region": "Europe, Middle East & Africa",
-    "assets": []
+    "region": "Europe, Middle East & Africa", 
+    "assets": [
+      {
+        "name": "Dubai Land Department",
+        "issuer": "rDgoZHy4SLPs4jhJZqkyaXX4iEsEUkCAVp",
+        "currency": "DLD",
+        "amount": 6000000,
+        "city": "Dubai",
+        "lat": 25.2048,
+        "lng": 55.2708
+      }
+    ]
   },
   {
     "region": "Asia-Pacific",
