@@ -1,7 +1,10 @@
 import { Client } from 'xrpl';
-import { Client } from 'xrpl';
 
-const client = new Client(process.env.QUICKNODE_URL);
+// Use QuickNode URL from environment variable, fallback to default Ripple server
+const xrplEndpoint = process.env.REACT_APP_QUICKNODE_URL || 'wss://s1.ripple.com';
+const client = new Client(xrplEndpoint);
+
+console.log('🌐 XRPL connecting to:', xrplEndpoint);
 let isConnecting = false;
 
 client.on('connected', () => {

@@ -12,7 +12,8 @@ import { Client } from 'xrpl';
  * @returns {Promise<number>} - Total supply amount
  */
 export const fetchIssuerSupply = async (issuerAddress, currency) => {
-  const client = new Client('wss://s1.ripple.com');
+  const xrplEndpoint = process.env.REACT_APP_QUICKNODE_URL || 'wss://s1.ripple.com';
+  const client = new Client(xrplEndpoint);
   
   try {
     await client.connect();
