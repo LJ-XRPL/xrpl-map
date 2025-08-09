@@ -86,7 +86,12 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
     };
 
     if (issuerAddresses.length > 0) {
-      console.log('Starting transaction polling for addresses:', issuerAddresses);
+      console.log('--- Starting Transaction Polling ---');
+      issuerAddresses.forEach(address => {
+        const issuer = mapData.find(item => item.issuer === address);
+        const issuerName = issuer ? `${issuer.name} (${issuer.currency})` : 'Unknown Issuer';
+        console.log(`📡 Polling for ${issuerName} transactions: ${address}`);
+      });
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
     }
 

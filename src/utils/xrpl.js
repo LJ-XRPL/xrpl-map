@@ -168,16 +168,6 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
 };
 
 export const subscribeToTransactions = (addresses, onTransaction) => {
-  const bbrlAddress = 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt';
-  const europAddress = 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK';
-  
-  if (addresses.includes(bbrlAddress)) {
-    console.log('🚀 Starting BBRL transaction monitoring for:', bbrlAddress);
-  }
-  if (addresses.includes(europAddress)) {
-    console.log('🚀 Starting EUROP transaction monitoring for:', europAddress);
-  }
-  
   return startTransactionPolling(addresses, onTransaction);
 };
 

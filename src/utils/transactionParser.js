@@ -44,12 +44,6 @@ export const parseTransaction = (txData, mapData) => {
   const issuer = findMatchingIssuer(tx, mapData);
   
   if (!issuer) {
-    // Only log for BBRL and EUROP since we silenced RLUSD logs
-    if (tx.Account === 'rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt') {
-      console.log('🤷 No matching issuer found for BBRL transaction');
-    } else if (tx.Account === 'rMkEuRii9w9uBMQDnWV5AA43gvYZR9JxVK') {
-      console.log('🤷 No matching issuer found for EUROP transaction');
-    }
     return null;
   }
 
