@@ -73,10 +73,6 @@ function App() {
         </div>
         <div className="dashboard-stats">
           <div className="stat-item">
-            <div className="stat-label">Total Supply</div>
-            <div className="stat-value">{totalStats.totalSupply.toLocaleString()}</div>
-          </div>
-          <div className="stat-item">
             <div className="stat-label">Market Cap</div>
             <div className="stat-value">${(totalStats.marketCap / 1000000).toFixed(1)}M</div>
           </div>

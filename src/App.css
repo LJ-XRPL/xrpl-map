@@ -486,6 +486,7 @@ a {
 .mobile-section-toggle-container {
   display: none;
   padding: 0 20px 10px 20px;
+  margin-top: 10px;
   box-sizing: border-box;
 }
 
