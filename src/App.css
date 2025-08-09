@@ -38,7 +38,7 @@ a {
 
 .dashboard-title h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 600;
   color: #ffffff;
   line-height: 1.2;
@@ -46,7 +46,7 @@ a {
 
 .dashboard-title p {
   margin: 5px 0 0 0;
-  font-size: 14px;
+  font-size: 16px;
   color: #888;
   font-weight: 400;
 }
@@ -64,7 +64,7 @@ a {
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 14px;
   color: #888;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -72,7 +72,7 @@ a {
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 600;
   color: #00ff88;
   line-height: 1;
@@ -434,11 +434,11 @@ a {
   }
   
   .dashboard-title h1 {
-    font-size: 20px;
+    font-size: 24px;
   }
   
   .dashboard-title p {
-    font-size: 12px;
+    font-size: 14px;
   }
   
   .dashboard-stats {
@@ -446,11 +446,11 @@ a {
   }
   
   .stat-label {
-    font-size: 10px;
+    font-size: 12px;
   }
   
   .stat-value {
-    font-size: 16px;
+    font-size: 20px;
   }
   
   .sidebar, .endpoints {
@@ -483,6 +483,12 @@ a {
 }
 
 /* Mobile Section Toggle Styles */
+.mobile-section-toggle-container {
+  display: none;
+  padding: 0 20px 10px 20px;
+  box-sizing: border-box;
+}
+
 .mobile-section-container {
   display: none;
 }
@@ -490,7 +496,6 @@ a {
 .mobile-section-toggle {
   display: flex;
   gap: 4px;
-  margin-bottom: 16px;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.05);
   padding: 4px;
@@ -532,6 +537,11 @@ a {
   .dashboard-content {
     flex-direction: column;
     overflow-y: auto;
+  }
+  
+  /* Show mobile toggle above globe */
+  .mobile-section-toggle-container {
+    display: block;
   }
   
   /* Hide desktop sidebars on mobile */
@@ -599,11 +609,11 @@ a {
   }
   
   .dashboard-title h1 {
-    font-size: 18px;
+    font-size: 22px;
   }
   
   .dashboard-title p {
-    font-size: 11px;
+    font-size: 13px;
     margin: 2px 0 0 0;
   }
   
@@ -618,11 +628,15 @@ a {
   }
   
   .stat-label {
-    font-size: 9px;
+    font-size: 11px;
   }
   
   .stat-value {
-    font-size: 14px;
+    font-size: 18px;
+  }
+  
+  .mobile-section-toggle-container {
+    padding: 0 15px 8px 15px;
   }
   
   .mobile-section-container {
@@ -732,11 +746,11 @@ a {
   }
   
   .dashboard-title h1 {
-    font-size: 16px;
+    font-size: 20px;
   }
   
   .dashboard-title p {
-    font-size: 10px;
+    font-size: 12px;
   }
   
   .dashboard-stats {
@@ -744,7 +758,11 @@ a {
   }
   
   .stat-value {
-    font-size: 12px;
+    font-size: 16px;
+  }
+  
+  .mobile-section-toggle-container {
+    padding: 0 12px 6px 12px;
   }
   
   .mobile-section-container {

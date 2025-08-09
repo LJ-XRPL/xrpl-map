@@ -86,6 +86,24 @@ function App() {
           </div>
         </div>
       </div>
+      {/* Mobile Section Toggle - Above Globe */}
+      <div className="mobile-section-toggle-container">
+        <div className="mobile-section-toggle">
+          <button 
+            className={`mobile-toggle-btn ${mobileActiveSection === 'rwas' ? 'active' : ''}`}
+            onClick={() => setMobileActiveSection('rwas')}
+          >
+            📊 Real-World Assets
+          </button>
+          <button 
+            className={`mobile-toggle-btn ${mobileActiveSection === 'stablecoins' ? 'active' : ''}`}
+            onClick={() => setMobileActiveSection('stablecoins')}
+          >
+            💰 Stablecoins
+          </button>
+        </div>
+      </div>
+      
       <div className="dashboard-content">
         <div className="desktop-sidebar">
           <Sidebar rwaData={liveRwaData} isLoading={isLoadingSupplies} />
@@ -97,23 +115,8 @@ function App() {
           <Stablecoins stablecoinData={liveStablecoinData} isLoading={isLoadingSupplies} />
         </div>
         
-        {/* Mobile Section Toggle */}
+        {/* Mobile Section Content - Below Globe */}
         <div className="mobile-section-container">
-          <div className="mobile-section-toggle">
-            <button 
-              className={`mobile-toggle-btn ${mobileActiveSection === 'rwas' ? 'active' : ''}`}
-              onClick={() => setMobileActiveSection('rwas')}
-            >
-              📊 Real-World Assets
-            </button>
-            <button 
-              className={`mobile-toggle-btn ${mobileActiveSection === 'stablecoins' ? 'active' : ''}`}
-              onClick={() => setMobileActiveSection('stablecoins')}
-            >
-              💰 Stablecoins
-            </button>
-          </div>
-          
           <div className="mobile-section-content">
             {mobileActiveSection === 'rwas' && (
               <Sidebar rwaData={liveRwaData} isLoading={isLoadingSupplies} />
