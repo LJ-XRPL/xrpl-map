@@ -6,6 +6,7 @@ import TransactionFeed from './components/TransactionFeed';
 import rwaData from './data/rwas.js';
 import stablecoinData from './data/stablecoins.js';
 import { refreshAllSupplies } from './utils/supplyFetcher.js';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 
 function App() {
@@ -124,6 +125,7 @@ function App() {
         </div>
       </div>
       <TransactionFeed transactions={recentTransactions} />
+      <Analytics />
     </div>
   );
 }
