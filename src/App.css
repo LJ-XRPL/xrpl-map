@@ -3,6 +3,8 @@ body {
   font-family: monospace;
   background-color: #000000;
   color: #ffffff;
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
 }
 
 a {
@@ -121,6 +123,8 @@ a {
   gap: 8px;
   transition: color 0.2s ease;
   user-select: none;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .region-info {
@@ -210,6 +214,8 @@ a {
   gap: 8px;
   transition: color 0.2s ease;
   user-select: none;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .analytics-header:hover {
@@ -392,8 +398,15 @@ a {
   transition: opacity 0.3s ease;
 }
 
-/* Responsive adjustments for smaller screens */
+/* Mobile Responsive Styles */
+
+/* Tablet Landscape */
 @media (max-width: 1200px) {
+  .sidebar, .endpoints {
+    width: 220px;
+    padding: 6px 15px 20px 15px;
+  }
+  
   .xrpl-logo-overlay {
     bottom: 15px;
     right: 15px;
@@ -403,9 +416,56 @@ a {
     width: 100px;
     height: 100px;
   }
+  
+  .dashboard-stats {
+    gap: 20px;
+  }
+  
+  .stat-value {
+    font-size: 18px;
+  }
 }
 
+/* Tablet Portrait */
 @media (max-width: 900px) {
+  .title-bar {
+    height: 70px;
+    padding: 0 15px;
+  }
+  
+  .dashboard-title h1 {
+    font-size: 20px;
+  }
+  
+  .dashboard-title p {
+    font-size: 12px;
+  }
+  
+  .dashboard-stats {
+    gap: 15px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
+  
+  .stat-value {
+    font-size: 16px;
+  }
+  
+  .sidebar, .endpoints {
+    width: 200px;
+    padding: 6px 12px 20px 12px;
+  }
+  
+  .title {
+    font-size: 1.3rem;
+  }
+  
+  .tagline {
+    font-size: 0.75rem;
+  }
+  
   .xrpl-logo-overlay {
     bottom: 10px;
     right: 32px;
@@ -415,9 +475,128 @@ a {
     width: 80px;
     height: 80px;
   }
+  
+  .globe-container {
+    width: 90vmin;
+    height: 90vmin;
+  }
 }
 
+/* Mobile Landscape */
+@media (max-width: 768px) {
+  .dashboard-content {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  
+  .sidebar, .endpoints {
+    width: 100%;
+    border-right: none;
+    border-left: none;
+    border-bottom: 1px solid #333;
+    padding: 12px 10px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  .endpoints {
+    border-top: 1px solid #333;
+    border-bottom: none;
+  }
+  
+  .main {
+    order: -1;
+    height: 60vh;
+    min-height: 400px;
+  }
+  
+  .globe-container {
+    width: 85vmin;
+    height: 85vmin;
+  }
+  
+  .title-bar {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 15px;
+    gap: 10px;
+  }
+  
+  .dashboard-title {
+    text-align: center;
+  }
+  
+  .dashboard-stats {
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .transaction-feed {
+    position: relative;
+    height: 50px;
+    margin-top: auto;
+  }
+}
+
+/* Mobile Portrait */
 @media (max-width: 600px) {
+  .title-bar {
+    padding: 8px 12px;
+  }
+  
+  .dashboard-title h1 {
+    font-size: 18px;
+  }
+  
+  .dashboard-title p {
+    font-size: 11px;
+    margin: 2px 0 0 0;
+  }
+  
+  .dashboard-stats {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .stat-item {
+    text-align: center;
+    min-width: 80px;
+  }
+  
+  .stat-label {
+    font-size: 9px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
+  
+  .sidebar, .endpoints {
+    padding: 10px 8px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  .title {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  
+  .tagline {
+    font-size: 0.7rem;
+    margin-bottom: 12px;
+  }
+  
+  .main {
+    height: 50vh;
+    min-height: 300px;
+  }
+  
+  .globe-container {
+    width: 80vmin;
+    height: 80vmin;
+  }
+  
   .xrpl-logo-overlay {
     bottom: 8px;
     right: 30px;
@@ -426,6 +605,176 @@ a {
   .xrpl-logo {
     width: 60px;
     height: 60px;
+  }
+  
+  .tab-button {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .asset, .coin {
+    margin-bottom: 10px;
+    padding: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .asset-name {
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+  }
+  
+  .asset-city {
+    font-size: 0.75rem;
+    margin-bottom: 3px;
+  }
+  
+  .asset-issuer {
+    font-size: 0.7rem;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+  
+  .asset-stats {
+    gap: 4px;
+    margin-top: 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .asset-stat-item {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .asset-stat-item span {
+    font-size: 0.7rem;
+    display: block;
+    word-break: break-word;
+  }
+  
+  .asset-stat-item .stat-label {
+    margin-bottom: 2px;
+  }
+  
+  .transaction-feed {
+    height: 40px;
+  }
+  
+  .transaction-item {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .title-bar {
+    padding: 6px 10px;
+  }
+  
+  .dashboard-title h1 {
+    font-size: 16px;
+  }
+  
+  .dashboard-title p {
+    font-size: 10px;
+  }
+  
+  .dashboard-stats {
+    gap: 8px;
+  }
+  
+  .stat-value {
+    font-size: 12px;
+  }
+  
+  .sidebar, .endpoints {
+    padding: 8px 6px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  
+  .title {
+    font-size: 1.0rem;
+  }
+  
+  .main {
+    height: 45vh;
+    min-height: 250px;
+  }
+  
+  .globe-container {
+    width: 75vmin;
+    height: 75vmin;
+  }
+  
+  .xrpl-logo {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .tab-container {
+    margin-top: 8px;
+  }
+  
+  .tab-button {
+    padding: 4px 6px;
+    font-size: 0.7rem;
+  }
+  
+  .section-header {
+    font-size: 0.85rem;
+    padding-bottom: 2px;
+    margin-bottom: 8px;
+  }
+  
+  .region-total {
+    font-size: 0.75rem;
+    padding: 1px 5px;
+  }
+  
+  .region-info {
+    gap: 8px;
+  }
+  
+  .transaction-feed {
+    height: 35px;
+  }
+  
+  .growth-item {
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+  
+  .asset-name-small {
+    font-size: 0.75rem;
+  }
+  
+  .growth-indicator {
+    font-size: 0.7rem;
+    padding: 1px 4px;
+  }
+  
+  .mini-chart {
+    height: 20px;
+  }
+  
+  .chart-label {
+    font-size: 0.65rem;
+  }
+  
+  .regional-stat {
+    margin-bottom: 12px;
+  }
+  
+  .region-label {
+    font-size: 0.75rem;
+  }
+  
+  .region-amount {
+    font-size: 0.7rem;
   }
 }
 
@@ -438,6 +787,8 @@ a {
   padding: 10px;
   border: 1px solid #333;
   border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .asset-name {
@@ -482,11 +833,15 @@ a {
   color: #ffffff;
   margin: 0;
   font-weight: bold;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .asset-stat-item {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .asset-stat-item .stat-label {
