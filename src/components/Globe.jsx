@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import GlobeGL from 'react-globe.gl';
 import RealEstateOverlay from './RealEstateOverlay.jsx';
+
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 import { parseTransaction, shouldLogTransaction } from '../utils/transactionParser.js';
 
-const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
+const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, volumeData }) => {
   const globeRef = useRef();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef();
@@ -111,7 +112,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         setCountries(geoJson);
       });
   }, []);
-  
+
   useEffect(() => {
     const handleResize = () => {
       if (containerRef.current) {
@@ -149,7 +150,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
       }
     };
   }, []);
-  
+
   return (
     <div ref={containerRef} className="globe-container">
       <GlobeGL
@@ -280,6 +281,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         objectThreeObject={realEstateOverlay.objectThreeObject}
         objectLabel={realEstateOverlay.objectLabel}
       />
+      
       <div className="xrpl-logo-overlay">
         <img src={`${process.env.PUBLIC_URL}/xrpl-white.svg`} alt="XRPL" className="xrpl-logo" />
       </div>
