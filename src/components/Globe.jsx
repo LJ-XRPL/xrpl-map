@@ -191,7 +191,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         objectLabel={realEstateOverlay.objectLabel}
       />
       <div className="xrpl-logo-overlay">
-        <img src="/xrpl-white.svg" alt="XRPL" className="xrpl-logo" />
+        <img src={`${process.env.PUBLIC_URL}/xrpl-white.svg`} alt="XRPL" className="xrpl-logo" />
       </div>
     </div>
   );

@@ -35,6 +35,10 @@
       "dest": "/robots.txt"
     },
     {
+      "src": "/xrpl-white.svg",
+      "dest": "/xrpl-white.svg"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.html"
     }
