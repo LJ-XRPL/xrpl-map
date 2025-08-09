@@ -166,10 +166,10 @@ function App() {
             <div className="stat-label">24h Volume</div>
             <div className="stat-value">${(totalStats.volume24h / 1000000).toFixed(1)}M</div>
           </div>
-          <button className="volume-breakdown-btn" onClick={() => setIsVolumeModalOpen(true)}>
+          {/* <button className="volume-breakdown-btn" onClick={() => setIsVolumeModalOpen(true)}>
             <span className="btn-icon">📊</span>
             <span className="btn-text">Volume Breakdown</span>
-          </button>
+          </button> */}
         </div>
       </div>
       {/* Mobile Section Toggle - Above Globe */}
@@ -195,7 +195,7 @@ function App() {
           <Sidebar rwaData={volumeData ? volumeData.rwaData : liveRwaData} isLoading={isLoadingSupplies} />
         </div>
         <main className="main">
-          <Globe onTransactionUpdate={setRecentTransactions} rwaData={liveRwaData} stablecoinData={liveStablecoinData} volumeData={volumeData} />
+          <Globe onTransactionUpdate={setRecentTransactions} rwaData={liveRwaData} stablecoinData={liveStablecoinData} />
         </main>
         <div className="desktop-stablecoins">
           <Stablecoins stablecoinData={volumeData ? volumeData.stablecoinData : liveStablecoinData} isLoading={isLoadingSupplies} />

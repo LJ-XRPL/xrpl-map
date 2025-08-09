@@ -6,7 +6,7 @@ import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactio
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 import { parseTransaction, shouldLogTransaction } from '../utils/transactionParser.js';
 
-const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, volumeData }) => {
+const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
   const globeRef = useRef();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef();
