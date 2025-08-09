@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Globe from './components/Globe';
 import Sidebar from './components/Sidebar';
 import Stablecoins from './components/Stablecoins';
@@ -14,7 +14,11 @@ function App() {
   const [liveRwaData, setLiveRwaData] = useState(rwaData);
   const [liveStablecoinData, setLiveStablecoinData] = useState(stablecoinData);
   const [isLoadingSupplies, setIsLoadingSupplies] = useState(false);
-  const [mobileActiveSection, setMobileActiveSection] = useState('rwas'); // 'rwas' or 'stablecoins'
+  const [mobileActiveSection, setMobileActiveSection] = useState('rwas'); 
+  // Chain selector state - commented out for now
+  // const [selectedChain, setSelectedChain] = useState('xrpl');
+  // const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
+  // const chainDropdownRef = useRef(null);
 
   // Fetch real-time supply data on component mount
   useEffect(() => {
@@ -60,17 +64,70 @@ function App() {
     };
   }, [liveRwaData, liveStablecoinData]);
 
+  // Close dropdown when clicking outside
+  // Chain selector click outside handler - commented out for now
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (chainDropdownRef.current && !chainDropdownRef.current.contains(event.target)) {
+  //       setIsChainDropdownOpen(false);
+  //     }
+  //   };
+
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //   };
+  // }, []);
+
   return (
     <div className="dashboard">
       <div className="title-bar">
-        <div className="dashboard-title">
-          <h1>XRPL RWA HQ</h1>
-          <p>Real-time RWA & stablecoin analytics. Watch TradFi come onchain.</p>
-          {isLoadingSupplies && (
-            <p style={{ color: '#00ff88', fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-              🔄 Updating supply data from XRPL...
-            </p>
-          )}
+        <div className="dashboard-title-container">
+          {/* Chain Selector - Commented out for now
+          <div className="chain-selector" ref={chainDropdownRef}>
+            <button 
+              className="chain-dropdown-btn"
+              onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
+            >
+              <span className="chain-icon">
+                {selectedChain === 'xrpl' ? '🟢' : '🟣'}
+              </span>
+              <span className="chain-name">
+                {selectedChain === 'xrpl' ? 'XRPL' : 'Solana'}
+              </span>
+              <span className="dropdown-arrow">▼</span>
+            </button>
+            {isChainDropdownOpen && (
+              <div className="chain-dropdown">
+                <div 
+                  className={`chain-option ${selectedChain === 'xrpl' ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedChain('xrpl');
+                    setIsChainDropdownOpen(false);
+                  }}
+                >
+                  <span className="chain-icon">🟢</span>
+                  <span className="chain-name">XRPL</span>
+                  <span className="chain-status">Live</span>
+                </div>
+                <div className="chain-option disabled">
+                  <span className="chain-icon">🟣</span>
+                  <span className="chain-name">Solana</span>
+                  <span className="chain-status">Coming Soon</span>
+                </div>
+              </div>
+            )}
+          </div>
+          */}
+          <div className="dashboard-title">
+            <h1>XRPL RWA HQ</h1>
+            <p>Real-time RWA & stablecoin analytics. Watch TradFi come onchain.</p>
+            {isLoadingSupplies && (
+              <p style={{ color: '#00ff88', fontSize: '0.8rem', margin: '4px 0 0 0' }}>
+                🔄 Updating supply data from XRPL...
+              </p>
+            )}
+          </div>
         </div>
         <div className="dashboard-stats">
           <div className="stat-item">
