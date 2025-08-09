@@ -157,41 +157,41 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         backgroundColor="#000000"
         width={size.width}
         height={size.height}
-        // Enhanced globe surface texture
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-        // Graticules for grid overlay
+        // Black and white globe with enhanced depth
         showGraticules={true}
-        graticulesLineColor={'rgba(255, 255, 255, 0.15)'}
-        graticulesResolution={5}
-        // Enhanced polygons with better depth
+        graticulesLineColor={'rgba(255, 255, 255, 0.1)'}
+        graticulesResolution={10}
+        // Enhanced polygons with monochrome depth
         polygonsData={countries.features}
         polygonCapColor={d => {
-          // Create more varied country colors based on properties
+          // Monochrome with subtle variations for depth
           const name = d.properties?.NAME || 'Unknown';
-          const hue = Math.abs((name.charCodeAt(0) || 65) * 137.5) % 360;
-          const baseAlpha = 0.2;
           const variation = Math.sin(name.length || 1) * 0.1;
-          const alpha = Math.max(0.1, Math.min(0.8, baseAlpha + variation));
-          return `hsla(${hue}, 30%, 20%, ${alpha})`;
+          const baseAlpha = 0.15;
+          const alpha = Math.max(0.05, Math.min(0.3, baseAlpha + variation));
+          return `rgba(20, 40, 20, ${alpha})`;
         }}
         polygonSideColor={d => {
+          // Darker sides for depth effect
           const name = d.properties?.NAME || 'Unknown';
-          const hue = Math.abs((name.charCodeAt(0) || 65) * 137.5) % 360;
-          return `hsla(${hue}, 40%, 15%, 0.4)`;
+          const variation = Math.sin(name.length || 1) * 0.05;
+          const alpha = Math.max(0.1, Math.min(0.4, 0.2 + variation));
+          return `rgba(255, 255, 255, ${alpha * 0.4})`;
         }}
-        polygonStrokeColor={() => 'rgba(255, 255, 255, 0.4)'}
-        polygonStroke={0.3}
+        polygonStrokeColor={() => 'rgba(255, 255, 255, 0.3)'}
+        polygonStroke={0.5}
         polygonAltitude={d => {
-          // Variable altitude based on country properties for more depth
+          // Enhanced variable altitude for more pronounced depth
           const name = d.properties?.NAME || 'Unknown';
-          const altitude = 0.01 + (Math.sin(name.length || 1) * 0.005);
-          return Math.max(0.005, Math.min(0.02, altitude));
+          const baseAltitude = 0.01;
+          const variation = Math.sin(name.length || 1) * 0.008;
+          const altitude = baseAltitude + variation;
+          return Math.max(0.002, Math.min(0.025, altitude));
         }}
-        // Enhanced atmosphere
+        // Subtle white atmosphere
         showAtmosphere={true}
-        atmosphereColor={'rgba(135, 206, 235, 0.8)'} // Sky blue atmosphere
-        atmosphereAltitude={0.25}
+        atmosphereColor={'#ffffff'}
+        atmosphereAltitude={0.15}
         pointsData={filteredMapData}
         pointLat={d => d.lat}
         pointLng={d => d.lng}

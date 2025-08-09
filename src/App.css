@@ -86,15 +86,32 @@ a {
 }
 
 .sidebar, .endpoints {
-  width: 260px;
+  width: 320px;
   padding: 6px 20px 20px 20px;
   background-color: #000000;
-  border-right: 1px solid #333;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100vh;
+  box-sizing: border-box;
 }
 
-.endpoints {
-  border-right: none;
-  border-left: 1px solid #333;
+/* Custom scrollbar styling */
+.sidebar::-webkit-scrollbar, .endpoints::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track, .endpoints::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb, .endpoints::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover, .endpoints::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .title {
@@ -299,6 +316,87 @@ a {
   font-size: 0.7rem;
   color: #666;
   white-space: nowrap;
+}
+
+/* Enhanced Chart Styles */
+.chart-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.chart-title {
+  font-size: 0.9rem;
+  color: #fff;
+  margin: 0 0 15px 0;
+  font-weight: 500;
+}
+
+.line-chart {
+  position: relative;
+  margin: 10px 0;
+}
+
+.line-chart svg {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 0.7rem;
+  color: #888;
+}
+
+.scatter-plot {
+  position: relative;
+  margin: 15px 0;
+}
+
+.scatter-plot svg {
+  width: 100%;
+  height: auto;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scatter-legend {
+  display: flex;
+  gap: 15px;
+  margin-top: 8px;
+  font-size: 0.7rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ccc;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.8;
+}
+
+.volume-chart {
+  margin: 12px 0;
+}
+
+.volume-label {
+  font-size: 0.8rem;
+  color: #bbb;
+  display: block;
+  margin-bottom: 8px;
 }
 
 /* Regional Breakdown Styles */
