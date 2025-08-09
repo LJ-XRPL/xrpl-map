@@ -482,6 +482,51 @@ a {
   }
 }
 
+/* Mobile Section Toggle Styles */
+.mobile-section-container {
+  display: none;
+}
+
+.mobile-section-toggle {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+}
+
+.mobile-toggle-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 0.9rem;
+  font-family: monospace;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  touch-action: manipulation;
+  min-height: 44px;
+}
+
+.mobile-toggle-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mobile-toggle-btn.active {
+  background: #00ff88;
+  color: #000;
+  font-weight: bold;
+}
+
+.mobile-section-content {
+  width: 100%;
+}
+
 /* Mobile Landscape */
 @media (max-width: 768px) {
   .dashboard-content {
@@ -489,19 +534,28 @@ a {
     overflow-y: auto;
   }
   
-  .sidebar, .endpoints {
+  /* Hide desktop sidebars on mobile */
+  .desktop-sidebar,
+  .desktop-stablecoins {
+    display: none;
+  }
+  
+  /* Show mobile section container */
+  .mobile-section-container {
+    display: block;
     width: 100%;
-    border-right: none;
-    border-left: none;
-    border-bottom: 1px solid #333;
     padding: 12px 10px;
     box-sizing: border-box;
     overflow-x: hidden;
   }
   
-  .endpoints {
-    border-top: 1px solid #333;
-    border-bottom: none;
+  /* Mobile section content inherits sidebar/endpoints styles */
+  .mobile-section-content .sidebar,
+  .mobile-section-content .endpoints {
+    width: 100%;
+    border: none;
+    padding: 0;
+    background: transparent;
   }
   
   .main {
@@ -571,10 +625,13 @@ a {
     font-size: 14px;
   }
   
-  .sidebar, .endpoints {
+  .mobile-section-container {
     padding: 10px 8px;
-    box-sizing: border-box;
-    overflow-x: hidden;
+  }
+  
+  .mobile-toggle-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
   
   .title {
@@ -690,10 +747,13 @@ a {
     font-size: 12px;
   }
   
-  .sidebar, .endpoints {
+  .mobile-section-container {
     padding: 8px 6px;
-    box-sizing: border-box;
-    overflow-x: hidden;
+  }
+  
+  .mobile-toggle-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
   }
   
   .title {

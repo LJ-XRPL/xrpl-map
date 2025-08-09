@@ -13,6 +13,7 @@ function App() {
   const [liveRwaData, setLiveRwaData] = useState(rwaData);
   const [liveStablecoinData, setLiveStablecoinData] = useState(stablecoinData);
   const [isLoadingSupplies, setIsLoadingSupplies] = useState(false);
+  const [mobileActiveSection, setMobileActiveSection] = useState('rwas'); // 'rwas' or 'stablecoins'
 
   // Fetch real-time supply data on component mount
   useEffect(() => {
@@ -86,11 +87,42 @@ function App() {
         </div>
       </div>
       <div className="dashboard-content">
-        <Sidebar rwaData={liveRwaData} isLoading={isLoadingSupplies} />
+        <div className="desktop-sidebar">
+          <Sidebar rwaData={liveRwaData} isLoading={isLoadingSupplies} />
+        </div>
         <main className="main">
           <Globe onTransactionUpdate={setRecentTransactions} rwaData={liveRwaData} stablecoinData={liveStablecoinData} />
         </main>
-        <Stablecoins stablecoinData={liveStablecoinData} isLoading={isLoadingSupplies} />
+        <div className="desktop-stablecoins">
+          <Stablecoins stablecoinData={liveStablecoinData} isLoading={isLoadingSupplies} />
+        </div>
+        
+        {/* Mobile Section Toggle */}
+        <div className="mobile-section-container">
+          <div className="mobile-section-toggle">
+            <button 
+              className={`mobile-toggle-btn ${mobileActiveSection === 'rwas' ? 'active' : ''}`}
+              onClick={() => setMobileActiveSection('rwas')}
+            >
+              📊 Real-World Assets
+            </button>
+            <button 
+              className={`mobile-toggle-btn ${mobileActiveSection === 'stablecoins' ? 'active' : ''}`}
+              onClick={() => setMobileActiveSection('stablecoins')}
+            >
+              💰 Stablecoins
+            </button>
+          </div>
+          
+          <div className="mobile-section-content">
+            {mobileActiveSection === 'rwas' && (
+              <Sidebar rwaData={liveRwaData} isLoading={isLoadingSupplies} />
+            )}
+            {mobileActiveSection === 'stablecoins' && (
+              <Stablecoins stablecoinData={liveStablecoinData} isLoading={isLoadingSupplies} />
+            )}
+          </div>
+        </div>
       </div>
       <TransactionFeed transactions={recentTransactions} />
     </div>
