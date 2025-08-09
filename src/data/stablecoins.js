@@ -15,7 +15,7 @@ const stablecoinData = [
         "name": "BBRL",
         "issuer": "rH5CJsqvNqZGxrMyGaqLEoMWRYcVTAPZMt",
         "currency": "BBRL",
-        "amount": 30952700,
+        "amount": 1396400,
         "city": "São Paulo",
         "lat": -23.5505,
         "lng": -46.6333

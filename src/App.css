@@ -144,6 +144,200 @@ a {
   border: 1px solid rgba(0, 255, 136, 0.3);
 }
 
+/* Tab Interface Styles */
+.tab-container {
+  margin-top: 20px;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 0.85rem;
+  font-family: monospace;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tab-button.active {
+  background: #00ff88;
+  color: #000;
+  font-weight: bold;
+}
+
+.tab-content {
+  min-height: 300px;
+}
+
+/* Analytics View Styles */
+.analytics-view {
+  padding: 4px 0;
+}
+
+.analytics-summary h3,
+.regional-breakdown h3 {
+  color: #fff;
+  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.analytics-header {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.analytics-header:hover {
+  color: #00ff88;
+}
+
+.growth-metrics {
+  margin-bottom: 24px;
+}
+
+.growth-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.growth-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.growth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.asset-name-small {
+  font-size: 0.8rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.growth-indicator {
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.growth-indicator.positive {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.15);
+}
+
+.growth-indicator.negative {
+  color: #ff4444;
+  background: rgba(255, 68, 68, 0.15);
+}
+
+.chart-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.mini-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 25px;
+  flex: 1;
+}
+
+.chart-bar {
+  width: 4px;
+  background: #00ff88;
+  border-radius: 1px;
+  transition: all 0.2s ease;
+}
+
+.chart-bar:hover {
+  opacity: 1 !important;
+}
+
+.chart-label {
+  font-size: 0.7rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* Regional Breakdown Styles */
+.regional-stat {
+  margin-bottom: 16px;
+}
+
+.region-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.region-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.region-percentage {
+  color: #00ff88;
+  font-weight: bold;
+}
+
+.region-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.region-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00ff88, #00cc6a);
+  transition: width 0.5s ease;
+}
+
+.region-amount {
+  font-size: 0.75rem;
+  color: #888;
+  text-align: right;
+}
+
 .section-header:hover {
   color: #00ff88;
 }

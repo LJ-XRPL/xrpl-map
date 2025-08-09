@@ -1,13 +1,11 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import GlobeGL from 'react-globe.gl';
-import rwaData from '../data/rwas.js';
-import stablecoinData from '../data/stablecoins.js';
 import RealEstateOverlay from './RealEstateOverlay.jsx';
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 import { parseTransaction, shouldLogTransaction } from '../utils/transactionParser.js';
 
-const Globe = ({ onTransactionUpdate }) => {
+const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
   const globeRef = useRef();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef();
@@ -19,7 +17,7 @@ const Globe = ({ onTransactionUpdate }) => {
   const mapData = useMemo(() => [
     ...rwaData.flatMap(region => region.assets.map(asset => ({ ...asset, type: 'RWA' }))),
     ...stablecoinData.flatMap(region => region.coins.map(coin => ({ ...coin, type: 'Stablecoin' })))
-  ], []);
+  ], [rwaData, stablecoinData]);
 
   // Filter out real estate assets from regular points (they'll be shown as 3D buildings)
   const filteredMapData = useMemo(() => {
@@ -142,7 +140,6 @@ const Globe = ({ onTransactionUpdate }) => {
         graticulesResolution={10}
         polygonsData={countries.features}
         polygonCapColor={d => {
-          // Add subtle color variation based on country properties
           const baseAlpha = 0.15;
           const variation = Math.sin(d.properties?.NAME?.length || 0) * 0.05;
           return `rgba(20, 40, 20, ${baseAlpha + variation})`;
