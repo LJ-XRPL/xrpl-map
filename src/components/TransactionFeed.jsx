@@ -5,9 +5,9 @@ const TransactionFeed = ({ transactions }) => {
   return (
     <div className="transaction-feed">
       <div className="transaction-stream">
-        {transactions.map(tx => (
+        {transactions.map((tx, index) => (
           <a 
-            key={`${tx.id}-1`} 
+            key={`${tx.id}-${tx.timestamp}-${index}`} 
             href={getTransactionExplorerLink(tx.hash)} 
             target="_blank" 
             rel="noopener noreferrer"
@@ -26,9 +26,9 @@ const TransactionFeed = ({ transactions }) => {
           </a>
         ))}
         {/* Duplicate for seamless scroll */}
-        {transactions.map(tx => (
+        {transactions.map((tx, index) => (
           <a 
-            key={`${tx.id}-2`} 
+            key={`${tx.id}-${tx.timestamp}-${index}-duplicate`} 
             href={getTransactionExplorerLink(tx.hash)} 
             target="_blank" 
             rel="noopener noreferrer"

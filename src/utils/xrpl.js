@@ -1,6 +1,7 @@
 import { Client } from 'xrpl';
+import { Client } from 'xrpl';
 
-const client = new Client('wss://s1.ripple.com');
+const client = new Client(process.env.QUICKNODE_URL);
 let isConnecting = false;
 
 client.on('connected', () => {
