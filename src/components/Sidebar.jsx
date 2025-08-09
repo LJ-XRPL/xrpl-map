@@ -231,8 +231,8 @@ const Sidebar = ({ rwaData, isLoading }) => {
                   <span>${asset.amount.toLocaleString()}</span>
                 </div>
                 <div className="asset-stat-item">
-                  <span className="stat-label">24H VOL</span>
-                  <span>${(asset.amount * 0.05).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span className="stat-label">24H VOL {asset.volume24h && asset.volume24h > 0 ? '🟢' : '⚪'}</span>
+                  <span>${(asset.volume24h || (asset.amount * 0.05)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@
 
 import rwaData from '../data/rwas.js';
 import stablecoinData from '../data/stablecoins.js';
+import volumeTracker from './volumeTracker.js';
 
 /**
  * Builds a mapping of issuer addresses to currency codes from data files
@@ -55,7 +56,7 @@ export const parseTransaction = (txData, mapData) => {
     return null;
   }
 
-  return {
+  const parsedTransaction = {
     id: hash,
     hash: hash,
     from: tx.Account,
@@ -68,7 +69,21 @@ export const parseTransaction = (txData, mapData) => {
     lng: issuer.lng,
     city: issuer.city,
     issuerName: issuer.name,
+    issuer: issuer.issuer,
   };
+
+  // Record transaction for volume tracking
+  if (amount && typeof amount === 'number' && amount > 0) {
+    volumeTracker.recordTransaction({
+      issuer: issuer.issuer,
+      currency: currency,
+      amount: amount,
+      timestamp: parsedTransaction.timestamp,
+      transactionType: tx.TransactionType
+    });
+  }
+
+  return parsedTransaction;
 };
 
 /**

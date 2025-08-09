@@ -223,8 +223,8 @@ const Stablecoins = ({ stablecoinData, isLoading }) => {
                   <span>${coin.amount.toLocaleString()}</span>
                 </div>
                 <div className="asset-stat-item">
-                  <span className="stat-label">24H VOL</span>
-                  <span>${(coin.amount * 0.05).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span className="stat-label">24H VOL {coin.volume24h && coin.volume24h > 0 ? '🟢' : '⚪'}</span>
+                  <span>${(coin.volume24h || (coin.amount * 0.05)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
               </div>
             </div>
