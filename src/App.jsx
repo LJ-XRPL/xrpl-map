@@ -162,10 +162,14 @@ function App() {
             <div className="stat-label">Market Cap</div>
             <div className="stat-value">${(totalStats.marketCap / 1000000).toFixed(1)}M</div>
           </div>
-          <div className="stat-item clickable-stat" onClick={() => setIsVolumeModalOpen(true)}>
-            <div className="stat-label">24h Volume 📊</div>
+          <div className="stat-item">
+            <div className="stat-label">24h Volume</div>
             <div className="stat-value">${(totalStats.volume24h / 1000000).toFixed(1)}M</div>
           </div>
+          <button className="volume-breakdown-btn" onClick={() => setIsVolumeModalOpen(true)}>
+            <span className="btn-icon">📊</span>
+            <span className="btn-text">Volume Breakdown</span>
+          </button>
         </div>
       </div>
       {/* Mobile Section Toggle - Above Globe */}
