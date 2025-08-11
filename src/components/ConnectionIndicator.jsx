@@ -1,5 +1,5 @@
 import React from 'react';
-import './ConnectionIndicator.css';
+import '../styles/ConnectionIndicator.css';
 
 const ConnectionIndicator = ({ isConnected, isConnecting, connectionError }) => {
   if (isConnected && !isConnecting && !connectionError) {

@@ -41,19 +41,43 @@ export const parseTransaction = (txData, mapData) => {
   const tx = txData.transaction;
   const hash = txData.hash || tx.hash;
   
+  // Debug: Log raw transaction data for payments
+  if (tx.TransactionType === 'Payment') {
+    console.log(`🔍 Raw Payment Transaction:`, {
+      type: tx.TransactionType,
+      account: tx.Account,
+      destination: tx.Destination,
+      amount: tx.Amount,
+      hash: hash
+    });
+  }
+  
   // Find the correct issuer based on the transaction account
   const issuer = findMatchingIssuer(tx, mapData);
   
   if (!issuer) {
+    if (tx.TransactionType === 'Payment') {
+      console.log(`❌ No matching issuer found for payment transaction`);
+    }
     return null;
   }
 
   // Parse amount and currency
   const { amount, currency } = parseTransactionAmount(tx, issuer);
   
-  // Skip transactions without meaningful amounts
+  // Skip transactions without meaningful amounts (but allow descriptive strings for non-payment transactions)
   if (amount === null || (typeof amount === 'string' && amount === '0.00')) {
-    return null;
+    if (tx.TransactionType === 'Payment') {
+      console.log(`❌ Payment filtered out - amount: ${amount}`);
+      // For debugging, let's see what the raw amount looks like
+      console.log(`🔍 Raw payment amount:`, tx.Amount);
+      
+      // For payments, let's show them even with 0 amounts for debugging
+      amount = 'Payment';
+      currency = issuer.currency;
+    } else {
+      return null;
+    }
   }
 
   const parsedTransaction = {
@@ -93,6 +117,16 @@ export const parseTransaction = (txData, mapData) => {
  * @returns {Object|null} - Matching issuer or null
  */
 const findMatchingIssuer = (tx, mapData) => {
+  // For Payment transactions, check if the amount issuer matches our tracked issuers
+  if (tx.TransactionType === 'Payment' && tx.Amount && typeof tx.Amount === 'object' && tx.Amount.issuer) {
+    const paymentIssuer = mapData.find(item => item.issuer === tx.Amount.issuer);
+    if (paymentIssuer) {
+      console.log(`🎯 Found payment issuer: ${paymentIssuer.name} (${paymentIssuer.currency})`);
+      return paymentIssuer;
+    }
+  }
+  
+  // For other transactions, check Account, Destination, and offer fields
   return mapData.find(item => 
     item.issuer === tx.Account || 
     item.issuer === tx.Destination ||
@@ -112,19 +146,82 @@ const parseTransactionAmount = (tx, issuer) => {
   let amount = null;
   let currency = issuer.currency;
   
-  // Only process transactions that have meaningful amounts
-  if (tx.TransactionType === 'Payment' && tx.Amount) {
-    const paymentResult = parsePaymentAmount(tx.Amount, issuer);
-    amount = paymentResult.amount;
-    currency = paymentResult.currency;
-  } else if (tx.TransactionType === 'OfferCreate' && tx.TakerPays) {
-    const offerResult = parseOfferAmount(tx.TakerPays, issuer);
-    amount = offerResult.amount;
-    currency = offerResult.currency;
-  } else if (tx.TransactionType === 'OfferCancel') {
-    // Show cancelled offers but with special amount
-    amount = 'Cancelled';
-    currency = issuer.currency;
+  // Handle different transaction types
+  switch (tx.TransactionType) {
+    case 'Payment':
+      if (tx.Amount) {
+        const paymentResult = parsePaymentAmount(tx.Amount, issuer);
+        amount = paymentResult.amount;
+        currency = paymentResult.currency;
+      }
+      break;
+      
+    case 'OfferCreate':
+      if (tx.TakerPays) {
+        const offerResult = parseOfferAmount(tx.TakerPays, issuer);
+        amount = offerResult.amount;
+        currency = offerResult.currency;
+      }
+      break;
+      
+    case 'OfferCancel':
+      amount = 'Cancelled';
+      currency = issuer.currency;
+      break;
+      
+    case 'TrustSet':
+      amount = 'Trust Line';
+      currency = issuer.currency;
+      break;
+      
+    case 'EscrowCreate':
+      if (tx.Amount) {
+        const escrowResult = parsePaymentAmount(tx.Amount, issuer);
+        amount = escrowResult.amount;
+        currency = escrowResult.currency;
+      } else {
+        amount = 'Escrow Created';
+        currency = issuer.currency;
+      }
+      break;
+      
+    case 'EscrowFinish':
+      amount = 'Escrow Finished';
+      currency = issuer.currency;
+      break;
+      
+    case 'NFTokenMint':
+      amount = 'NFT Minted';
+      currency = issuer.currency;
+      break;
+      
+    case 'CheckCreate':
+      if (tx.SendMax) {
+        const checkResult = parsePaymentAmount(tx.SendMax, issuer);
+        amount = checkResult.amount;
+        currency = checkResult.currency;
+      } else {
+        amount = 'Check Created';
+        currency = issuer.currency;
+      }
+      break;
+      
+    case 'CheckCash':
+      if (tx.Amount) {
+        const cashResult = parsePaymentAmount(tx.Amount, issuer);
+        amount = cashResult.amount;
+        currency = cashResult.currency;
+      } else {
+        amount = 'Check Cashed';
+        currency = issuer.currency;
+      }
+      break;
+      
+    default:
+      // For any other transaction types, show a generic message
+      amount = tx.TransactionType || 'Transaction';
+      currency = issuer.currency;
+      break;
   }
   
   return { amount, currency };
@@ -148,11 +245,13 @@ const parsePaymentAmount = (txAmount, issuer) => {
       currency = 'XRP';
     }
   } else if (typeof txAmount === 'object' && txAmount.value) {
-    // Token payment
+    // Token payment - issued currency
     const amountValue = parseFloat(txAmount.value);
     if (!isNaN(amountValue) && amountValue > 0) {
       amount = amountValue.toFixed(2);
+      // Get the correct currency for this issuer
       currency = getCurrencyFromIssuer(txAmount.issuer, issuer);
+      console.log(`💰 Payment: ${amount} ${currency} from issuer ${txAmount.issuer}`);
     }
   }
   

@@ -3,12 +3,13 @@ import GlobeGL from 'react-globe.gl';
 import RealEstateOverlay from './RealEstateOverlay.jsx';
 import ConnectionStatus from './ConnectionStatus.jsx';
 import ConnectionIndicator from './ConnectionIndicator.jsx';
+import TransactionTypeSelector from './TransactionTypeSelector.jsx';
 
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 import { parseTransaction } from '../utils/transactionParser.js';
 
-const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
+const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransactionFilters, onFilterChange }) => {
   const globeRef = useRef();
   const [size, setSize] = useState({ width: 0, height: 0 });
   const containerRef = useRef();
@@ -17,6 +18,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState(null);
+
   const stopPollingRef = useRef(null);
   const [animationTime, setAnimationTime] = useState(0);
 
@@ -138,13 +140,20 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         return; // Transaction was filtered out or invalid
       }
 
+      // Debug: Log transaction types being received
+      console.log(`📊 Received transaction: ${parsedTransaction.type} - ${parsedTransaction.amount} ${parsedTransaction.currency}`);
+
+      // Check if this transaction type is in the active filters
+      if (!activeTransactionFilters.includes(parsedTransaction.type)) {
+        console.log(`🚫 Filtered out: ${parsedTransaction.type} (not in active filters)`);
+        return; // Skip this transaction type
+      }
+
       // Add additional properties for the globe visualization
       const newTransaction = {
         ...parsedTransaction,
         color: getTransactionColor(parsedTransaction.type)
       };
-
-
 
       setTransactions(prev => [...prev, newTransaction].slice(-50));
       onTransactionUpdate?.(prev => [newTransaction, ...prev].slice(0, 100));
@@ -157,7 +166,11 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
 
     // Start continuous transaction polling
     if (issuerAddresses.length > 0) {
-      console.log(`🔄 Starting continuous transaction polling for ${issuerAddresses.length} issuers`);
+      console.log(`🔄 Starting continuous transaction polling for ${issuerAddresses.length} issuers:`);
+      issuerAddresses.forEach((address, index) => {
+        const issuer = mapData.find(item => item.issuer === address);
+        console.log(`  ${index + 1}. ${address} - ${issuer ? issuer.name : 'Unknown'} (${issuer ? issuer.currency : 'Unknown'})`);
+      });
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
     }
 
@@ -167,7 +180,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         unsubscribeFromTransactions(stopPollingRef.current);
       }
     };
-  }, [isConnected, issuerAddresses, mapData, onTransactionUpdate]);
+  }, [isConnected, issuerAddresses, mapData, onTransactionUpdate, activeTransactionFilters]);
 
   // Reconnection effect - restart polling if connection is restored
   useEffect(() => {
@@ -176,6 +189,15 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
       const handleTransaction = (txData) => {
         const parsedTransaction = parseTransaction(txData, mapData);
         if (!parsedTransaction) return;
+
+        // Debug: Log transaction types being received
+        console.log(`📊 Reconnection - Received transaction: ${parsedTransaction.type} - ${parsedTransaction.amount} ${parsedTransaction.currency}`);
+
+        // Check if this transaction type is in the active filters
+        if (!activeTransactionFilters.includes(parsedTransaction.type)) {
+          console.log(`🚫 Reconnection - Filtered out: ${parsedTransaction.type} (not in active filters)`);
+          return; // Skip this transaction type
+        }
 
         const newTransaction = {
           ...parsedTransaction,
@@ -192,7 +214,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
 
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
     }
-  }, [isConnected, issuerAddresses, mapData, onTransactionUpdate]);
+  }, [isConnected, issuerAddresses, mapData, onTransactionUpdate, activeTransactionFilters]);
 
   useEffect(() => {
     // Load topojson library if not already loaded
@@ -405,6 +427,11 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         isConnected={isConnected}
         isConnecting={isConnecting}
         connectionError={connectionError}
+      />
+      
+      <TransactionTypeSelector 
+        activeFilters={activeTransactionFilters}
+        onFilterChange={onFilterChange}
       />
     </div>
   );

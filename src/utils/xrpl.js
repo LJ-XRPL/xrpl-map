@@ -225,12 +225,13 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
   const paymentIntervalMs = Math.max(intervalMs / 2, 5000); // Payment polling at half interval, minimum 5s
   let isPollingActive = true;
   
-  const pollTransactions = async () => {
-    if (!isPollingActive) return;
-    
-    for (const address of addresses) {
-      try {
-        const transactions = await getAccountTransactions(address, 10);
+      const pollTransactions = async () => {
+      if (!isPollingActive) return;
+      
+      for (const address of addresses) {
+        try {
+          const transactions = await getAccountTransactions(address, 10);
+          console.log(`🔍 Polling ${address}: Found ${transactions.length} transactions`);
         
         // Sort transactions to prioritize Payment transactions
         const sortedTransactions = transactions.sort((a, b) => {
@@ -259,6 +260,15 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           }
           
           seenTransactions.add(hash);
+          
+          // Debug: Log all transactions being processed
+          console.log(`📡 Raw transaction from ${address}:`, {
+            type: tx.TransactionType,
+            account: tx.Account,
+            destination: tx.Destination,
+            amount: tx.Amount,
+            hash: hash
+          });
           
           // Call the callback with the transaction
           onTransaction({

@@ -1,11 +1,16 @@
 import React from 'react';
 import { getTransactionExplorerLink } from '../utils/formatters.js';
 
-const TransactionFeed = ({ transactions }) => {
+const TransactionFeed = ({ transactions, activeFilters = [] }) => {
+  // Filter transactions based on active filters
+  const filteredTransactions = activeFilters.length > 0 
+    ? transactions.filter(tx => activeFilters.includes(tx.type))
+    : transactions;
+
   return (
     <div className="transaction-feed">
       <div className="transaction-stream">
-        {transactions.map((tx, index) => (
+        {filteredTransactions.map((tx, index) => (
           <a 
             key={`${tx.id}-${tx.timestamp}-${index}`} 
             href={getTransactionExplorerLink(tx.hash)} 
@@ -26,7 +31,7 @@ const TransactionFeed = ({ transactions }) => {
           </a>
         ))}
         {/* Duplicate for seamless scroll */}
-        {transactions.map((tx, index) => (
+        {filteredTransactions.map((tx, index) => (
           <a 
             key={`${tx.id}-${tx.timestamp}-${index}-duplicate`} 
             href={getTransactionExplorerLink(tx.hash)} 

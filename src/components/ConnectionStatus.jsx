@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './ConnectionStatus.css';
+import '../styles/ConnectionStatus.css';
 
 const ConnectionStatus = ({ isConnected, isConnecting, connectionError }) => {
   const [showModal, setShowModal] = useState(false);

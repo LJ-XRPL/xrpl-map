@@ -9,7 +9,7 @@ import stablecoinData from './data/stablecoins.js';
 import { refreshAllSupplies } from './utils/supplyFetcher.js';
 import { getVolumeDataForDisplay } from './utils/volumeIntegrator.js';
 import { Analytics } from '@vercel/analytics/react';
-import './App.css';
+import './styles/App.css';
 
 function App() {
   const [recentTransactions, setRecentTransactions] = useState([]);
@@ -18,7 +18,10 @@ function App() {
   const [isLoadingSupplies, setIsLoadingSupplies] = useState(false);
   const [mobileActiveSection, setMobileActiveSection] = useState('rwas');
   const [volumeData, setVolumeData] = useState(null);
-  const [isVolumeModalOpen, setIsVolumeModalOpen] = useState(false); 
+  const [isVolumeModalOpen, setIsVolumeModalOpen] = useState(false);
+  const [activeTransactionFilters, setActiveTransactionFilters] = useState([
+    'Payment', 'OfferCreate', 'OfferCancel', 'TrustSet', 'EscrowCreate', 'EscrowFinish', 'NFTokenMint', 'CheckCreate', 'CheckCash'
+  ]); 
   // Chain selector state - commented out for now
   // const [selectedChain, setSelectedChain] = useState('xrpl');
   // const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
@@ -199,7 +202,13 @@ function App() {
           <Sidebar rwaData={volumeData ? volumeData.rwaData : liveRwaData} isLoading={isLoadingSupplies} />
         </div>
         <main className="main">
-          <Globe onTransactionUpdate={setRecentTransactions} rwaData={liveRwaData} stablecoinData={liveStablecoinData} />
+          <Globe 
+            onTransactionUpdate={setRecentTransactions} 
+            rwaData={liveRwaData} 
+            stablecoinData={liveStablecoinData}
+            activeTransactionFilters={activeTransactionFilters}
+            onFilterChange={setActiveTransactionFilters}
+          />
         </main>
         <div className="desktop-stablecoins">
           <Stablecoins stablecoinData={volumeData ? volumeData.stablecoinData : liveStablecoinData} isLoading={isLoadingSupplies} />
@@ -217,7 +226,7 @@ function App() {
           </div>
         </div>
       </div>
-      <TransactionFeed transactions={recentTransactions} />
+      <TransactionFeed transactions={recentTransactions} activeFilters={activeTransactionFilters} />
       
       {/* Volume Breakdown Modal */}
       <VolumeBreakdownModal 
