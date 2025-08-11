@@ -633,6 +633,15 @@ a {
   cursor: grab;
   position: relative;
   margin: auto;
+  /* Enhanced rendering quality */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent blurry rendering */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 .xrpl-logo-overlay {

@@ -13,6 +13,40 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>XRPL Asset Globe</title>
     <script src="//unpkg.com/topojson-client"></script>
+    <!-- Polyfills for better rendering and browser compatibility -->
+    <script>
+      // Polyfill for requestAnimationFrame
+      if (!window.requestAnimationFrame) {
+        window.requestAnimationFrame = function(callback) {
+          return setTimeout(callback, 1000 / 60);
+        };
+      }
+      
+      // Polyfill for cancelAnimationFrame
+      if (!window.cancelAnimationFrame) {
+        window.cancelAnimationFrame = function(id) {
+          clearTimeout(id);
+        };
+      }
+      
+      // Polyfill for performance.now()
+      if (!window.performance || !window.performance.now) {
+        window.performance = window.performance || {};
+        window.performance.now = function() {
+          return Date.now();
+        };
+      }
+      
+      // Polyfill for WebGL context
+      if (!window.WebGLRenderingContext) {
+        console.warn('WebGL not supported - globe may not render properly');
+      }
+      
+      // Polyfill for Promise if needed
+      if (!window.Promise) {
+        window.Promise = require('es6-promise').Promise;
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

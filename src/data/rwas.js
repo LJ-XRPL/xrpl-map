@@ -26,8 +26,8 @@ const rwaData = [
         "currency": "ZECO",
         "amount": 28750000,
         "city": "New York",
-        "lat": 22.3193,
-        "lng": 114.1694
+        "lat": 40.7128,
+        "lng": -74.0060
       }
     ]  
   },
@@ -70,7 +70,7 @@ const rwaData = [
         "name": "OpenEden T-BILLS",
         "issuer": "rJFhJyqyfkFgE2QehL2xqGQu7ozqr1qGmC",
         "currency": "OE",
-        "amount": 45300000,
+        "amount": 65300000,
         "city": "Singapore",
         "lat": 1.3521,
         "lng": 103.8198

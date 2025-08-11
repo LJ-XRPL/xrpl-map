@@ -4,7 +4,6 @@
  */
 
 import { Client } from 'xrpl';
-import { connect, disconnect } from './xrpl.js';
 
 /**
  * Fetches the total obligations (supply) for a given issuer address

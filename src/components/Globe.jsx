@@ -23,10 +23,9 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
 
   // Filter out real estate assets from regular points (they'll be shown as 3D buildings)
   const filteredMapData = useMemo(() => {
-    return mapData.filter(item => {
-      // Remove real estate related assets from regular points
+    const filtered = mapData.filter(item => {
       if (item.type === 'RWA' && (
-        item.currency === 'DLD' || // Dubai Land Department
+        item.currency === 'DLD' || 
         item.name.toLowerCase().includes('real estate') ||
         item.name.toLowerCase().includes('land') ||
         item.name.toLowerCase().includes('property')
@@ -34,6 +33,49 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         return false;
       }
       return true;
+    });
+
+    // Group issuers by location and add offsets to prevent overlap
+    const locationGroups = {};
+    filtered.forEach(item => {
+      const locationKey = `${item.lat.toFixed(3)},${item.lng.toFixed(3)}`;
+      if (!locationGroups[locationKey]) {
+        locationGroups[locationKey] = [];
+      }
+      locationGroups[locationKey].push(item);
+    });
+
+    // Add offsets to items in the same location
+    return filtered.map(item => {
+      const locationKey = `${item.lat.toFixed(3)},${item.lng.toFixed(3)}`;
+      const group = locationGroups[locationKey];
+      
+      if (group.length === 1) {
+        return item; // No offset needed for single items
+      }
+
+      // Calculate offset based on position in group
+      const index = group.findIndex(groupItem => 
+        groupItem.issuer === item.issuer && groupItem.currency === item.currency
+      );
+      
+      if (index === -1) return item;
+
+      // Create a small offset pattern (spiral-like)
+      const angle = (index / group.length) * 2 * Math.PI;
+      const radius = 0.005; // Much smaller offset radius (about 500m)
+      const offsetLat = Math.cos(angle) * radius;
+      const offsetLng = Math.sin(angle) * radius;
+
+      // Ensure coordinates stay within valid bounds
+      const newLat = Math.max(-90, Math.min(90, item.lat + offsetLat));
+      const newLng = Math.max(-180, Math.min(180, item.lng + offsetLng));
+
+      return {
+        ...item,
+        lat: newLat,
+        lng: newLng
+      };
     });
   }, [mapData]);
 
@@ -89,7 +131,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
 
           if (issuerAddresses.length > 0) {
         issuerAddresses.forEach(address => {
-          const issuer = mapData.find(item => item.issuer === address);
+          // Address processing for transaction polling
         });
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
     }
@@ -102,11 +144,44 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
   }, [isConnected, issuerAddresses, mapData, onTransactionUpdate]);
 
   useEffect(() => {
+    // Load topojson library if not already loaded
+    const loadTopoJSON = async () => {
+      if (!window.topojson) {
+        try {
+          const script = document.createElement('script');
+          script.src = '//unpkg.com/topojson-client@3';
+          script.async = true;
+          script.onload = () => {
+            console.log('TopoJSON library loaded successfully');
+          };
+          script.onerror = () => {
+            console.warn('Failed to load TopoJSON library');
+          };
+          document.head.appendChild(script);
+        } catch (error) {
+          console.warn('Error loading TopoJSON library:', error);
+        }
+      }
+    };
+
+    loadTopoJSON();
+
     fetch('//unpkg.com/world-atlas/countries-110m.json')
       .then(res => res.json())
       .then(data => {
-        const geoJson = window.topojson.feature(data, data.objects.countries);
-        setCountries(geoJson);
+        // Check if topojson is available, otherwise use a fallback
+        if (window.topojson && window.topojson.feature) {
+          const geoJson = window.topojson.feature(data, data.objects.countries);
+          setCountries(geoJson);
+        } else {
+          // Fallback: create a basic countries object
+          console.warn('TopoJSON not available, using fallback');
+          setCountries({ features: [] });
+        }
+      })
+      .catch(error => {
+        console.error('Failed to load countries data:', error);
+        setCountries({ features: [] });
       });
   }, []);
 
@@ -155,37 +230,23 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         backgroundColor="#000000"
         width={size.width}
         height={size.height}
-        // Black and white globe with enhanced depth
+        // Enhanced rendering quality
+        enablePointerInteraction={true}
+        enableGlobeInteraction={true}
+        // Realistic Earth texture
+        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+        // Crisp graticules with better visibility
         showGraticules={true}
-        graticulesLineColor={'rgba(255, 255, 255, 0.1)'}
-        graticulesResolution={10}
-        // Enhanced polygons with monochrome depth
+                graticulesLineColor={'rgba(255, 255, 255, 0.3)'}
+        graticulesResolution={15}
+        // Country outlines only
         polygonsData={countries.features}
-        polygonCapColor={d => {
-          // Monochrome with subtle variations for depth
-          const name = d.properties?.NAME || 'Unknown';
-          const variation = Math.sin(name.length || 1) * 0.1;
-          const baseAlpha = 0.15;
-          const alpha = Math.max(0.05, Math.min(0.3, baseAlpha + variation));
-          return `rgba(20, 40, 20, ${alpha})`;
-        }}
-        polygonSideColor={d => {
-          // Darker sides for depth effect
-          const name = d.properties?.NAME || 'Unknown';
-          const variation = Math.sin(name.length || 1) * 0.05;
-          const alpha = Math.max(0.1, Math.min(0.4, 0.2 + variation));
-          return `rgba(255, 255, 255, ${alpha * 0.4})`;
-        }}
-        polygonStrokeColor={() => 'rgba(255, 255, 255, 0.3)'}
+        polygonCapColor={() => 'rgba(0, 0, 0, 0)'} // Transparent
+        polygonSideColor={() => 'rgba(0, 0, 0, 0)'} // Transparent
+        polygonStrokeColor={() => 'rgba(255, 255, 255, 0.4)'} // White borders
         polygonStroke={0.5}
-        polygonAltitude={d => {
-          // Enhanced variable altitude for more pronounced depth
-          const name = d.properties?.NAME || 'Unknown';
-          const baseAltitude = 0.01;
-          const variation = Math.sin(name.length || 1) * 0.008;
-          const altitude = baseAltitude + variation;
-          return Math.max(0.002, Math.min(0.025, altitude));
-        }}
+        polygonAltitude={() => 0} // No elevation
         // Subtle white atmosphere
         showAtmosphere={true}
         atmosphereColor={'#ffffff'}
