@@ -106,7 +106,6 @@ const Sidebar = ({ rwaData, isLoading }) => {
 
   const renderMarketCapGrowthScatter = (assets) => {
     const maxAmount = Math.max(...assets.map(a => a.amount));
-    const minAmount = Math.min(...assets.map(a => a.amount));
     
     return (
       <div className="scatter-plot">

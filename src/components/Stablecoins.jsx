@@ -119,7 +119,6 @@ const Stablecoins = ({ stablecoinData, isLoading }) => {
           
           {coins.map((coin, i) => {
             const x = (coin.amount / maxAmount) * 260 + 10;
-            const growthRate = getGrowthTrend(coin.amount);
             const utilization = 60 + (Math.random() * 30); // 60-90% utilization
             const y = 90 - (utilization / 100) * 80;
             const size = Math.max(5, Math.min(12, Math.log10(coin.amount) - 2));
