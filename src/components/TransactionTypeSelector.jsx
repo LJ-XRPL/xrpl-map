@@ -30,6 +30,7 @@ const TransactionTypeSelector = ({ onFilterChange, activeFilters }) => {
 
   const activeCount = activeFilters.length;
   const totalCount = transactionTypes.length;
+  const hasActiveFilters = activeCount > 0 && activeCount < totalCount;
 
   return (
     <div className={`transaction-type-selector ${isExpanded ? 'expanded' : ''}`}>
@@ -38,6 +39,7 @@ const TransactionTypeSelector = ({ onFilterChange, activeFilters }) => {
           <span className="header-icon">🎛️</span>
           <span className="header-text">Transaction Types</span>
           <span className="filter-count">{activeCount}/{totalCount}</span>
+          {hasActiveFilters && <span className="mobile-filter-indicator">●</span>}
         </div>
         <div className={`expand-arrow ${isExpanded ? 'expanded' : ''}`}>▼</div>
       </div>
