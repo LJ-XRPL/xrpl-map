@@ -6,7 +6,7 @@ import ConnectionIndicator from './ConnectionIndicator.jsx';
 
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
-import { parseTransaction, shouldLogTransaction } from '../utils/transactionParser.js';
+import { parseTransaction } from '../utils/transactionParser.js';
 
 const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
   const globeRef = useRef();

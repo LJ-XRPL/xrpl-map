@@ -222,7 +222,6 @@ export const startTransactionReplay = (addresses, onTransaction, replayIntervalM
 
 // Start polling for transactions with Payment prioritization (original function)
 export const startTransactionPolling = (addresses, onTransaction, intervalMs = 10000) => {
-  const seenTransactions = new Set();
   const paymentIntervalMs = Math.max(intervalMs / 2, 5000); // Payment polling at half interval, minimum 5s
   
   const pollTransactions = async () => {
