@@ -128,7 +128,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
       disconnect();
     };
   }, []);
-  
+
   useEffect(() => {
     if (!isConnected) return;
 

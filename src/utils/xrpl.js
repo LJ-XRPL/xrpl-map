@@ -281,7 +281,6 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
         }
       } catch (error) {
         console.error(`❌ Error polling transactions for ${address}:`, error.message);
-        // Continue polling even if there's an error
       }
     }
     
@@ -300,7 +299,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
         const transactions = await getAccountTransactions(address, 5); // Smaller batch for faster processing
         
         // Filter for Payment transactions only
-        const paymentTransactions = transactions.filter(txData => 
+        const paymentTransactions = transactions.filter(txData =>   
           txData.tx_json?.TransactionType === 'Payment'
         );
         
