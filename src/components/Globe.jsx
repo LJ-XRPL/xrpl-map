@@ -149,23 +149,49 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
       setTransactions(prev => [...prev, newTransaction].slice(-50));
       onTransactionUpdate?.(prev => [newTransaction, ...prev].slice(0, 100));
 
+      // Keep transactions visible for 3 seconds, then remove them
       setTimeout(() => {
         setTransactions(prev => prev.filter(t => t.id !== newTransaction.id));
       }, 3000);
     };
 
-          if (issuerAddresses.length > 0) {
-        issuerAddresses.forEach(address => {
-          // Address processing for transaction polling
-        });
+    // Start continuous transaction polling
+    if (issuerAddresses.length > 0) {
+      console.log(`🔄 Starting continuous transaction polling for ${issuerAddresses.length} issuers`);
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
     }
 
     return () => {
       if (stopPollingRef.current) {
+        console.log('🛑 Stopping transaction polling');
         unsubscribeFromTransactions(stopPollingRef.current);
       }
     };
+  }, [isConnected, issuerAddresses, mapData, onTransactionUpdate]);
+
+  // Reconnection effect - restart polling if connection is restored
+  useEffect(() => {
+    if (isConnected && issuerAddresses.length > 0 && !stopPollingRef.current) {
+      console.log('🔄 Reconnection detected - restarting transaction polling');
+      const handleTransaction = (txData) => {
+        const parsedTransaction = parseTransaction(txData, mapData);
+        if (!parsedTransaction) return;
+
+        const newTransaction = {
+          ...parsedTransaction,
+          color: getTransactionColor(parsedTransaction.type)
+        };
+
+        setTransactions(prev => [...prev, newTransaction].slice(-50));
+        onTransactionUpdate?.(prev => [newTransaction, ...prev].slice(0, 100));
+
+        setTimeout(() => {
+          setTransactions(prev => prev.filter(t => t.id !== newTransaction.id));
+        }, 3000);
+      };
+
+      stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
+    }
   }, [isConnected, issuerAddresses, mapData, onTransactionUpdate]);
 
   useEffect(() => {

@@ -143,7 +143,6 @@ export const fetchAllTransactionsForReplay = async (addresses) => {
 
 // Start transaction replay loop
 export const startTransactionReplay = (addresses, onTransaction, replayIntervalMs = 2000) => {
-  const seenTransactions = new Set();
   let replayIntervalId = null;
   
   const startReplay = async () => {
@@ -224,8 +223,11 @@ export const startTransactionReplay = (addresses, onTransaction, replayIntervalM
 export const startTransactionPolling = (addresses, onTransaction, intervalMs = 10000) => {
   const seenTransactions = new Set();
   const paymentIntervalMs = Math.max(intervalMs / 2, 5000); // Payment polling at half interval, minimum 5s
+  let isPollingActive = true;
   
   const pollTransactions = async () => {
+    if (!isPollingActive) return;
+    
     for (const address of addresses) {
       try {
         const transactions = await getAccountTransactions(address, 10);
@@ -269,12 +271,20 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
         }
       } catch (error) {
         console.error(`❌ Error polling transactions for ${address}:`, error.message);
+        // Continue polling even if there's an error
       }
+    }
+    
+    // Schedule next poll - continuous polling
+    if (isPollingActive) {
+      setTimeout(pollTransactions, intervalMs);
     }
   };
 
   // Payment-focused polling function (more frequent)
   const pollPaymentsOnly = async () => {
+    if (!isPollingActive) return;
+    
     for (const address of addresses) {
       try {
         const transactions = await getAccountTransactions(address, 5); // Smaller batch for faster processing
@@ -306,18 +316,28 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
         // Silent error handling for payment polling to avoid spam
       }
     }
+    
+    // Schedule next payment poll - continuous polling
+    if (isPollingActive) {
+      setTimeout(pollPaymentsOnly, paymentIntervalMs);
+    }
   };
 
   // Initial poll after 3 seconds
   setTimeout(pollTransactions, 3000);
+  setTimeout(pollPaymentsOnly, 5000); // Start payment polling 2 seconds after main polling
   
-  // Set up intervals - faster for payments, normal for all transactions
-  const mainIntervalId = setInterval(pollTransactions, intervalMs);
-  const paymentIntervalId = setInterval(pollPaymentsOnly, paymentIntervalMs);
+  // Heartbeat to ensure continuous polling
+  const heartbeat = () => {
+    if (isPollingActive) {
+      console.log('💓 Transaction polling heartbeat - continuing...');
+      setTimeout(heartbeat, 60000); // Check every minute
+    }
+  };
+  setTimeout(heartbeat, 60000);
   
   return () => {
-    clearInterval(mainIntervalId);
-    clearInterval(paymentIntervalId);
+    isPollingActive = false;
   };
 };
 
