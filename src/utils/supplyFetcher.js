@@ -26,7 +26,7 @@ export const fetchIssuerSupply = async (issuerAddress, currency) => {
     });
 
     if (!accountInfo.result?.account_data) {
-      console.warn(`No account data found for ${issuerAddress}`);
+  
       return 0;
     }
 
@@ -112,7 +112,7 @@ export const fetchAllSupplies = async (rwaData, stablecoinData) => {
   // Wait for all fetches to complete
   await Promise.all(fetchPromises);
   
-  console.log('📊 Fetched on-chain supplies:', supplies);
+  
   return supplies;
 };
 
@@ -157,13 +157,13 @@ export const updateDataWithSupplies = (rwaData, stablecoinData, supplies) => {
  * @returns {Promise<Object>} - Updated data with real supplies
  */
 export const refreshAllSupplies = async (rwaData, stablecoinData) => {
-  console.log('🔄 Refreshing all supply data from XRPL...');
+
   
   try {
     const supplies = await fetchAllSupplies(rwaData, stablecoinData);
     const updatedData = updateDataWithSupplies(rwaData, stablecoinData, supplies);
     
-    console.log('✅ Successfully updated all supplies from on-chain data');
+
     return updatedData;
     
   } catch (error) {

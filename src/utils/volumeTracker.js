@@ -43,7 +43,7 @@ class VolumeTracker {
     // Update volume data for this issuer
     this.updateVolumeForIssuer(issuer, currency, txRecord.amount, txRecord.timestamp);
 
-    console.log(`📊 Volume recorded: ${currency} ${amount} for ${issuer.substring(0, 8)}...`);
+
   }
 
   /**
@@ -157,7 +157,7 @@ class VolumeTracker {
       this.recalculate24hVolume(issuer);
     }
 
-    console.log(`🧹 Volume tracker cleanup completed. Tracking ${this.transactionHistory.length} recent transactions`);
+
   }
 
   /**

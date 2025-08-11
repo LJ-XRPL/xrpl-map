@@ -4,16 +4,16 @@ import { Client } from 'xrpl';
 const xrplEndpoint = process.env.REACT_APP_QUICKNODE_URL || 'wss://s1.ripple.com';
 const client = new Client(xrplEndpoint);
 
-console.log('🌐 XRPL connecting to:', xrplEndpoint);
+
 let isConnecting = false;
 
 client.on('connected', () => {
-  console.log('🟢 XRPL client connected');
+  
   isConnecting = false;
 });
 
 client.on('disconnected', (code) => {
-  console.log(`🔴 XRPL client disconnected, code: ${code}`);
+
   isConnecting = false;
 });
 
@@ -32,9 +32,9 @@ export const disconnect = async () => {
 };
 
 // Get recent transactions for an account
-export const getAccountTransactions = async (address, limit = 10) => {
+export const getAccountTransactions = async (address, limit = 25) => {
   if (!client.isConnected()) {
-    console.warn('Cannot get transactions, client not connected');
+
     return [];
   }
 
@@ -64,7 +64,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
   const paymentIntervalMs = Math.max(intervalMs / 2, 5000); // Payment polling at half interval, minimum 5s
   
   const pollTransactions = async () => {
-    console.log(`🔄 Polling transactions for ${addresses.length} issuers...`);
+
     
     for (const address of addresses) {
       try {
@@ -88,7 +88,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           const hash = txData.hash;
           
           if (!tx || !hash) {
-            console.warn('⚠️ Invalid transaction structure:', txData);
+    
             continue;
           }
           
@@ -101,7 +101,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           
           // Log priority transactions
           if (tx.TransactionType === 'Payment') {
-            console.log(`💰 Priority Payment transaction found: ${hash}`);
+  
           }
           
           // Call the callback with the transaction
@@ -138,8 +138,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
           }
           
           seenTransactions.add(hash);
-          console.log(`⚡ Fast-tracked Payment: ${hash}`);
-          
+  
           onTransaction({
             transaction: tx,
             meta: txData.meta,
@@ -154,9 +153,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
   };
 
   // Initial poll after 3 seconds
-  console.log('⏰ Starting transaction polling in 3 seconds...');
-  console.log(`💰 Payment transactions will be polled every ${paymentIntervalMs}ms`);
-  console.log(`🔄 All transactions will be polled every ${intervalMs}ms`);
+
   
   setTimeout(pollTransactions, 3000);
   
@@ -165,7 +162,7 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
   const paymentIntervalId = setInterval(pollPaymentsOnly, paymentIntervalMs);
   
   return () => {
-    console.log('🛑 Stopping transaction polling');
+  
     clearInterval(mainIntervalId);
     clearInterval(paymentIntervalId);
   };

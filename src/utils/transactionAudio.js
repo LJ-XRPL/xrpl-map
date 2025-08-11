@@ -10,7 +10,7 @@ export class TransactionAudio {
     try {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
-      console.warn('Web Audio API not supported');
+  
       this.enabled = false;
     }
   }
