@@ -34,16 +34,24 @@ function App() {
         setLiveStablecoinData(updatedData.stablecoinData);
       } catch (error) {
         console.error('Failed to fetch live supply data:', error);
+        // Fallback to original data if refresh fails
+        setLiveRwaData(rwaData);
+        setLiveStablecoinData(stablecoinData);
       } finally {
         setIsLoadingSupplies(false);
       }
     };
 
-    fetchSupplies();
+    // Initial fetch with a delay to avoid blocking the UI
+    const initialTimeout = setTimeout(fetchSupplies, 2000);
     
     // Refresh supply data every 5 minutes
     const interval = setInterval(fetchSupplies, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
   // Update volume data periodically

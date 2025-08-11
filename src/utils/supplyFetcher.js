@@ -4,6 +4,7 @@
  */
 
 import { Client } from 'xrpl';
+import { connect, disconnect } from './xrpl.js';
 
 /**
  * Fetches the total obligations (supply) for a given issuer address
@@ -13,7 +14,10 @@ import { Client } from 'xrpl';
  */
 export const fetchIssuerSupply = async (issuerAddress, currency) => {
   const xrplEndpoint = process.env.REACT_APP_QUICKNODE_URL || 'wss://s1.ripple.com';
-  const client = new Client(xrplEndpoint);
+  const client = new Client(xrplEndpoint, {
+    connectionTimeout: 15000, // 15 seconds
+    maxRetries: 3
+  });
   
   try {
     await client.connect();
@@ -89,6 +93,15 @@ export const fetchAllSupplies = async (rwaData, stablecoinData) => {
               name: asset.name
             };
           })
+          .catch(error => {
+            console.error(`Failed to fetch supply for ${asset.issuer}:`, error.message);
+            // Use original amount as fallback
+            supplies[asset.issuer] = {
+              supply: asset.amount,
+              currency: asset.currency,
+              name: asset.name
+            };
+          })
       );
     });
   });
@@ -105,12 +118,21 @@ export const fetchAllSupplies = async (rwaData, stablecoinData) => {
               name: coin.name
             };
           })
+          .catch(error => {
+            console.error(`Failed to fetch supply for ${coin.issuer}:`, error.message);
+            // Use original amount as fallback
+            supplies[coin.issuer] = {
+              supply: coin.amount,
+              currency: coin.currency,
+              name: coin.name
+            };
+          })
       );
     });
   });
 
-  // Wait for all fetches to complete
-  await Promise.all(fetchPromises);
+  // Wait for all fetches to complete with timeout
+  await Promise.allSettled(fetchPromises);
   
   
   return supplies;

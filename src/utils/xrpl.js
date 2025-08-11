@@ -2,7 +2,10 @@ import { Client } from 'xrpl';
 
 // Use QuickNode URL from environment variable, fallback to default Ripple server
 const xrplEndpoint = process.env.REACT_APP_QUICKNODE_URL || 'wss://s1.ripple.com';
-const client = new Client(xrplEndpoint);
+const client = new Client(xrplEndpoint, {
+  connectionTimeout: 15000, // 15 seconds instead of 5
+  maxRetries: 3
+});
 
 
 let isConnecting = false;
@@ -22,7 +25,13 @@ export const connect = async () => {
     return;
   }
   isConnecting = true;
-  await client.connect();
+  
+  try {
+    await client.connect();
+  } catch (error) {
+    isConnecting = false;
+    console.error('Failed to connect to XRPL:', error.message);
+  }
 };
 
 export const disconnect = async () => {

@@ -87,13 +87,10 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
       }, 3000);
     };
 
-    if (issuerAddresses.length > 0) {
-  
-      issuerAddresses.forEach(address => {
-        const issuer = mapData.find(item => item.issuer === address);
-        const issuerName = issuer ? `${issuer.name} (${issuer.currency})` : 'Unknown Issuer';
-        
-      });
+          if (issuerAddresses.length > 0) {
+        issuerAddresses.forEach(address => {
+          const issuer = mapData.find(item => item.issuer === address);
+        });
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
     }
 
