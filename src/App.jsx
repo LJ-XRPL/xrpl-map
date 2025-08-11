@@ -158,11 +158,7 @@ function App() {
           <div className="dashboard-title">
             <h1>XRPL RWA HQ</h1>
             <p>Real-time RWA & stablecoin analytics. Watch TradFi come onchain.</p>
-            {isLoadingSupplies && (
-              <p style={{ color: '#00ff88', fontSize: '0.8rem', margin: '4px 0 0 0' }}>
-                🔄 Updating supply data from XRPL...
-              </p>
-            )}
+
           </div>
         </div>
         <div className="dashboard-stats">

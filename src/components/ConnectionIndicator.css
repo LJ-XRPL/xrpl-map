@@ -1,0 +1,97 @@
+.connection-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 12px;
+  color: #ffffff;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.connection-indicator.connecting {
+  border-color: rgba(0, 255, 136, 0.5);
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.connection-indicator.error {
+  border-color: rgba(255, 107, 107, 0.5);
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.connection-indicator.disconnected {
+  border-color: rgba(255, 193, 7, 0.5);
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #888;
+  animation: pulse 2s infinite;
+}
+
+.connection-indicator.connecting .indicator-dot {
+  background: #00ff88;
+  animation: pulse 1s infinite;
+}
+
+.connection-indicator.error .indicator-dot {
+  background: #ff6b6b;
+  animation: pulse 0.5s infinite;
+}
+
+.connection-indicator.disconnected .indicator-dot {
+  background: #ffc107;
+  animation: pulse 1.5s infinite;
+}
+
+.indicator-text {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .connection-indicator {
+    top: 10px;
+    right: 10px;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  
+  .indicator-dot {
+    width: 6px;
+    height: 6px;
+  }
+} 

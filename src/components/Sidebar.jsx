@@ -166,7 +166,6 @@ const Sidebar = ({ rwaData, isLoading }) => {
   return (
   <aside className="sidebar">
       <h1 className="title">Real-World Assets</h1>
-      <p className="tagline">{isLoading && '🔄 Loading...'}</p>
       
       <div className="tab-container">
         <div className="tab-buttons">

@@ -14,8 +14,9 @@ import { Client } from 'xrpl';
 export const fetchIssuerSupply = async (issuerAddress, currency) => {
   const xrplEndpoint = process.env.REACT_APP_QUICKNODE_URL || 'wss://s1.ripple.com';
   const client = new Client(xrplEndpoint, {
-    connectionTimeout: 15000, // 15 seconds
-    maxRetries: 3
+    connectionTimeout: 10000, // Reduced timeout for supply fetching
+    maxRetries: 2,
+    timeout: 15000
   });
   
   try {

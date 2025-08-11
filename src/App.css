@@ -158,6 +158,29 @@ a {
   font-weight: 400;
 }
 
+.replay-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.replay-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+.replay-description {
+  font-size: 0.75rem;
+  color: #aaa;
+  font-style: italic;
+}
+
 .dashboard-stats {
   display: flex;
   gap: 20px;

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import GlobeGL from 'react-globe.gl';
 import RealEstateOverlay from './RealEstateOverlay.jsx';
+import ConnectionStatus from './ConnectionStatus.jsx';
+import ConnectionIndicator from './ConnectionIndicator.jsx';
 
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
@@ -13,6 +15,8 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
   const [countries, setCountries] = useState({ features: [] });
   const [transactions, setTransactions] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [connectionError, setConnectionError] = useState(null);
   const stopPollingRef = useRef(null);
   const [animationTime, setAnimationTime] = useState(0);
 
@@ -86,8 +90,32 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
 
   useEffect(() => {
     const init = async () => {
-      await connect();
-      setIsConnected(true);
+      setIsConnecting(true);
+      setConnectionError(null);
+      
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      const attemptConnection = async () => {
+        try {
+          await connect();
+          setIsConnected(true);
+          setIsConnecting(false);
+          setConnectionError(null);
+        } catch (error) {
+          retryCount++;
+          if (retryCount < maxRetries) {
+            console.log(`🔄 Connection attempt ${retryCount} failed, retrying in 3 seconds...`);
+            setTimeout(attemptConnection, 3000);
+          } else {
+            setConnectionError(`Connection failed after ${maxRetries} attempts: ${error.message}`);
+            setIsConnecting(false);
+            setIsConnected(false);
+          }
+        }
+      };
+      
+      attemptConnection();
     };
     init();
 
@@ -116,10 +144,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
         color: getTransactionColor(parsedTransaction.type)
       };
 
-      // Only log for BBRL and EUROP transactions
-      if (shouldLogTransaction(newTransaction)) {
 
-      }
 
       setTransactions(prev => [...prev, newTransaction].slice(-50));
       onTransactionUpdate?.(prev => [newTransaction, ...prev].slice(0, 100));
@@ -343,6 +368,18 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData }) => {
       <div className="xrpl-logo-overlay">
         <img src={`${process.env.PUBLIC_URL}/xrpl-white.svg`} alt="XRPL" className="xrpl-logo" />
       </div>
+      
+      <ConnectionStatus 
+        isConnected={isConnected}
+        isConnecting={isConnecting}
+        connectionError={connectionError}
+      />
+      
+      <ConnectionIndicator 
+        isConnected={isConnected}
+        isConnecting={isConnecting}
+        connectionError={connectionError}
+      />
     </div>
   );
 };
