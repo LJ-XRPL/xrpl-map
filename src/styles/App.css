@@ -1845,3 +1845,50 @@ a {
     letter-spacing: 0.3px;
   }
 }
+
+/* App Credit */
+.app-credit {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 12px;
+  color: #aaa;
+  backdrop-filter: blur(15px);
+  z-index: 1000;
+  transition: all 0.2s ease;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.app-credit:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #aaa;
+}
+
+.credit-link {
+  color: #00ff88;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.credit-link:hover {
+  color: #00cc6a;
+  text-decoration: underline;
+}
+
+/* Mobile responsive for credit */
+@media (max-width: 768px) {
+  .app-credit {
+    left: 15px;
+    bottom: 15px;
+    padding: 6px 12px;
+    font-size: 11px;
+    border-radius: 18px;
+  }
+}

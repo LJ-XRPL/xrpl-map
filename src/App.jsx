@@ -201,7 +201,7 @@ function App() {
         <div className="desktop-sidebar">
           <Sidebar rwaData={volumeData ? volumeData.rwaData : liveRwaData} isLoading={isLoadingSupplies} />
         </div>
-        <main className="main">
+                <main className="main">
           <Globe 
             onTransactionUpdate={setRecentTransactions} 
             rwaData={liveRwaData} 
@@ -209,6 +209,17 @@ function App() {
             activeTransactionFilters={activeTransactionFilters}
             onFilterChange={setActiveTransactionFilters}
           />
+          <div className="app-credit">
+            <span>Crafted with ❤️ by </span>
+            <a 
+              href="https://x.com/luke_judges" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="credit-link"
+            >
+              @luke_judges
+            </a>
+          </div>
         </main>
         <div className="desktop-stablecoins">
           <Stablecoins stablecoinData={volumeData ? volumeData.stablecoinData : liveStablecoinData} isLoading={isLoadingSupplies} />
