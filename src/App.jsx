@@ -17,6 +17,7 @@ function App() {
   const [liveStablecoinData, setLiveStablecoinData] = useState(stablecoinData);
   const [isLoadingSupplies, setIsLoadingSupplies] = useState(false);
   const [mobileActiveSection, setMobileActiveSection] = useState('rwas');
+  const [isMobileTabExpanded, setIsMobileTabExpanded] = useState(false);
   const [volumeData, setVolumeData] = useState(null);
   const [isVolumeModalOpen, setIsVolumeModalOpen] = useState(false);
   const [activeTransactionFilters, setActiveTransactionFilters] = useState([
@@ -179,21 +180,39 @@ function App() {
           </button> */}
         </div>
       </div>
-      {/* Mobile Section Toggle - Above Globe */}
-      <div className="mobile-section-toggle-container">
-        <div className="mobile-section-toggle">
-          <button 
-            className={`mobile-toggle-btn ${mobileActiveSection === 'rwas' ? 'active' : ''}`}
-            onClick={() => setMobileActiveSection('rwas')}
-          >
-            📊 Real-World Assets
-          </button>
-          <button 
-            className={`mobile-toggle-btn ${mobileActiveSection === 'stablecoins' ? 'active' : ''}`}
-            onClick={() => setMobileActiveSection('stablecoins')}
-          >
-            💰 Stablecoins
-          </button>
+      {/* Mobile Pull-up Tab */}
+      <div className={`mobile-pullup-tab ${isMobileTabExpanded ? 'expanded' : ''}`}>
+        <div className="pullup-handle" onClick={() => setIsMobileTabExpanded(!isMobileTabExpanded)}>
+          <div className="handle-indicator"></div>
+          <div className="handle-text">
+            {mobileActiveSection === 'rwas' ? '📊 Real-World Assets' : '💰 Stablecoins'}
+          </div>
+        </div>
+        
+        <div className="pullup-content">
+          <div className="pullup-tabs">
+            <button 
+              className={`pullup-tab ${mobileActiveSection === 'rwas' ? 'active' : ''}`}
+              onClick={() => setMobileActiveSection('rwas')}
+            >
+              📊 Assets
+            </button>
+            <button 
+              className={`pullup-tab ${mobileActiveSection === 'stablecoins' ? 'active' : ''}`}
+              onClick={() => setMobileActiveSection('stablecoins')}
+            >
+              💰 Coins
+            </button>
+          </div>
+          
+          <div className="pullup-section-content">
+            {mobileActiveSection === 'rwas' && (
+              <Sidebar rwaData={volumeData ? volumeData.rwaData : liveRwaData} isLoading={isLoadingSupplies} />
+            )}
+            {mobileActiveSection === 'stablecoins' && (
+              <Stablecoins stablecoinData={volumeData ? volumeData.stablecoinData : liveStablecoinData} isLoading={isLoadingSupplies} />
+            )}
+          </div>
         </div>
       </div>
       
@@ -209,7 +228,7 @@ function App() {
             activeTransactionFilters={activeTransactionFilters}
             onFilterChange={setActiveTransactionFilters}
           />
-          <div className="app-credit">
+          {/* <div className="app-credit">
             <span>Crafted with ❤️ by </span>
             <a 
               href="https://x.com/luke_judges" 
@@ -219,22 +238,10 @@ function App() {
             >
               @luke_judges
             </a>
-          </div>
+          </div> */}
         </main>
         <div className="desktop-stablecoins">
           <Stablecoins stablecoinData={volumeData ? volumeData.stablecoinData : liveStablecoinData} isLoading={isLoadingSupplies} />
-        </div>
-        
-        {/* Mobile Section Content - Below Globe */}
-        <div className="mobile-section-container">
-          <div className="mobile-section-content">
-            {mobileActiveSection === 'rwas' && (
-              <Sidebar rwaData={volumeData ? volumeData.rwaData : liveRwaData} isLoading={isLoadingSupplies} />
-            )}
-            {mobileActiveSection === 'stablecoins' && (
-              <Stablecoins stablecoinData={volumeData ? volumeData.stablecoinData : liveStablecoinData} isLoading={isLoadingSupplies} />
-            )}
-          </div>
         </div>
       </div>
       <TransactionFeed transactions={recentTransactions} activeFilters={activeTransactionFilters} />

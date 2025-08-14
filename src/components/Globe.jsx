@@ -266,6 +266,14 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
           height: containerRef.current.offsetHeight,
         });
       }
+      
+      // Update zoom level on resize
+      if (globeRef.current) {
+        const isMobile = window.innerWidth <= 768;
+        const altitude = isMobile ? 2.2 : 1.5; // More zoomed out on mobile
+        
+        globeRef.current.pointOfView({ altitude });
+      }
     };
     
     handleResize();
@@ -274,7 +282,12 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     if (globeRef.current) {
       globeRef.current.controls().autoRotate = true;
       globeRef.current.controls().autoRotateSpeed = 0.25;
-      globeRef.current.pointOfView({ altitude: 1.75 });
+      
+      // Set different zoom levels for mobile vs desktop
+      const isMobile = window.innerWidth <= 768;
+      const altitude = isMobile ? 3.75 : 1.75; // More zoomed out on mobile
+      
+      globeRef.current.pointOfView({ altitude });
     }
 
     return () => window.removeEventListener('resize', handleResize);
