@@ -6,11 +6,12 @@
 class VolumeTracker {
   constructor() {
     this.volumeData = new Map(); // Map<issuerAddress, VolumeInfo>
-    this.transactionHistory = []; // Array of transaction records
-    this.cleanupInterval = null;
+    this.sessionStartTime = Date.now(); // Track when this session started
+    this.cacheKey = 'xrpl_volume_cache';
+    this.cacheExpiryKey = 'xrpl_volume_cache_expiry';
     
-    // Start cleanup process to remove old transactions
-    this.startCleanup();
+    // Load cached data on initialization
+    this.loadCachedData();
   }
 
   /**
@@ -28,83 +29,44 @@ class VolumeTracker {
       return; // Skip invalid transactions
     }
 
-    // Create transaction record
-    const txRecord = {
-      issuer,
-      currency,
-      amount: parseFloat(amount),
-      timestamp: timestamp || Date.now(),
-      id: `${issuer}-${currency}-${timestamp || Date.now()}`
-    };
-
-    // Add to transaction history
-    this.transactionHistory.push(txRecord);
-
-    // Update volume data for this issuer
-    this.updateVolumeForIssuer(issuer, currency, txRecord.amount, txRecord.timestamp);
-
-
+    // Update volume data for this issuer (incremental)
+    this.updateVolumeForIssuer(issuer, currency, parseFloat(amount), timestamp || Date.now());
+    
+    // Save to cache after recording new transaction
+    this.saveCachedData();
   }
 
   /**
-   * Updates volume data for a specific issuer
+   * Updates volume data for a specific issuer (incremental)
    */
   updateVolumeForIssuer(issuer, currency, amount, timestamp) {
     if (!this.volumeData.has(issuer)) {
       this.volumeData.set(issuer, {
         issuer,
         currency,
-        volume24h: 0,
+        sessionVolume: 0, // Total volume for this session
         transactionCount: 0,
-        lastUpdated: timestamp,
-        transactions: []
+        lastUpdated: timestamp
       });
     }
 
     const volumeInfo = this.volumeData.get(issuer);
-    volumeInfo.transactions.push({ amount, timestamp });
+    volumeInfo.sessionVolume += amount; // Add to session total
     volumeInfo.transactionCount++;
     volumeInfo.lastUpdated = timestamp;
 
-    // Recalculate 24h volume
-    this.recalculate24hVolume(issuer);
+    console.log(`📈 Volume updated for ${issuer}: +${amount} ${currency} (Total: ${volumeInfo.sessionVolume})`);
   }
 
   /**
-   * Recalculates 24-hour volume for an issuer
-   */
-  recalculate24hVolume(issuer) {
-    const volumeInfo = this.volumeData.get(issuer);
-    if (!volumeInfo) return;
-
-    const now = Date.now();
-    const oneDayAgo = now - (24 * 60 * 60 * 1000);
-
-    // Filter transactions from last 24 hours
-    const recentTransactions = volumeInfo.transactions.filter(
-      tx => tx.timestamp >= oneDayAgo
-    );
-
-    // Calculate total volume
-    const volume24h = recentTransactions.reduce((sum, tx) => sum + tx.amount, 0);
-
-    // Update volume info
-    volumeInfo.volume24h = volume24h;
-    volumeInfo.transactions = recentTransactions; // Keep only recent transactions
-  }
-
-  /**
-   * Gets 24h volume for a specific issuer
+   * Gets session volume for a specific issuer
    * @param {string} issuer - Issuer address
-   * @returns {number} 24h volume
+   * @returns {number} Session volume
    */
-  get24hVolume(issuer) {
+  getSessionVolume(issuer) {
     const volumeInfo = this.volumeData.get(issuer);
     if (!volumeInfo) return 0;
-
-    // Recalculate to ensure freshness
-    this.recalculate24hVolume(issuer);
-    return volumeInfo.volume24h;
+    return volumeInfo.sessionVolume;
   }
 
   /**
@@ -115,11 +77,10 @@ class VolumeTracker {
     const result = [];
     
     for (const [issuer, volumeInfo] of this.volumeData.entries()) {
-      this.recalculate24hVolume(issuer);
       result.push({
         issuer,
         currency: volumeInfo.currency,
-        volume24h: volumeInfo.volume24h,
+        volume24h: volumeInfo.sessionVolume, // Use session volume for compatibility
         transactionCount: volumeInfo.transactionCount,
         lastUpdated: volumeInfo.lastUpdated
       });
@@ -130,53 +91,112 @@ class VolumeTracker {
 
   /**
    * Gets total volume across all issuers
-   * @returns {number} Total 24h volume
+   * @returns {number} Total session volume
    */
   getTotalVolume() {
     let total = 0;
     for (const [issuer] of this.volumeData.entries()) {
-      total += this.get24hVolume(issuer);
+      total += this.getSessionVolume(issuer);
     }
     return total;
   }
 
   /**
-   * Cleanup old transactions and recalculate volumes
+   * Gets session statistics
+   * @returns {Object} Session statistics
    */
-  cleanup() {
-    const now = Date.now();
-    const oneDayAgo = now - (24 * 60 * 60 * 1000);
+  getSessionStats() {
+    const sessionDuration = Date.now() - this.sessionStartTime;
+    const sessionMinutes = Math.round(sessionDuration / (60 * 1000));
+    
+    return {
+      sessionStartTime: this.sessionStartTime,
+      sessionDuration,
+      sessionMinutes,
+      totalIssuers: this.volumeData.size
+    };
+  }
 
-    // Remove old transactions from history
-    this.transactionHistory = this.transactionHistory.filter(
-      tx => tx.timestamp >= oneDayAgo
-    );
-
-    // Recalculate all volumes
-    for (const [issuer] of this.volumeData.entries()) {
-      this.recalculate24hVolume(issuer);
+  /**
+   * Saves volume data to localStorage cache
+   */
+  saveCachedData() {
+    try {
+      const cacheData = {
+        volumeData: Array.from(this.volumeData.entries()),
+        sessionStartTime: this.sessionStartTime,
+        timestamp: Date.now()
+      };
+      
+      localStorage.setItem(this.cacheKey, JSON.stringify(cacheData));
+      localStorage.setItem(this.cacheExpiryKey, Date.now().toString());
+      
+      console.log('💾 Volume cache saved:', {
+        issuers: this.volumeData.size,
+        totalVolume: this.getTotalVolume(),
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('❌ Failed to save volume cache:', error);
     }
-
-
   }
 
   /**
-   * Starts periodic cleanup process
+   * Loads volume data from localStorage cache
    */
-  startCleanup() {
-    // Run cleanup every 5 minutes
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, 5 * 60 * 1000);
+  loadCachedData() {
+    try {
+      const cachedData = localStorage.getItem(this.cacheKey);
+      const cacheExpiry = localStorage.getItem(this.cacheExpiryKey);
+      
+      if (!cachedData || !cacheExpiry) {
+        console.log('📭 No volume cache found');
+        return;
+      }
+
+      const expiryTime = parseInt(cacheExpiry);
+      const now = Date.now();
+      const cacheAge = now - expiryTime;
+      const maxCacheAge = 24 * 60 * 60 * 1000; // 24 hours
+
+      if (cacheAge > maxCacheAge) {
+        console.log('⏰ Volume cache expired, clearing old data');
+        localStorage.removeItem(this.cacheKey);
+        localStorage.removeItem(this.cacheExpiryKey);
+        return;
+      }
+
+      const parsedData = JSON.parse(cachedData);
+      
+      // Restore volume data
+      this.volumeData = new Map(parsedData.volumeData);
+      this.sessionStartTime = parsedData.sessionStartTime || Date.now();
+      
+      console.log('📂 Volume cache loaded:', {
+        issuers: this.volumeData.size,
+        totalVolume: this.getTotalVolume(),
+        cacheAge: Math.round(cacheAge / (60 * 1000)) + ' minutes ago'
+      });
+    } catch (error) {
+      console.error('❌ Failed to load volume cache:', error);
+      // Clear corrupted cache
+      localStorage.removeItem(this.cacheKey);
+      localStorage.removeItem(this.cacheExpiryKey);
+    }
   }
 
   /**
-   * Stops cleanup process
+   * Clears all cached volume data
    */
-  stopCleanup() {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.cleanupInterval = null;
+  clearCache() {
+    try {
+      localStorage.removeItem(this.cacheKey);
+      localStorage.removeItem(this.cacheExpiryKey);
+      this.volumeData.clear();
+      this.sessionStartTime = Date.now();
+      console.log('🗑️ Volume cache cleared');
+    } catch (error) {
+      console.error('❌ Failed to clear volume cache:', error);
     }
   }
 
@@ -187,15 +207,54 @@ class VolumeTracker {
     const allVolumes = this.getAllVolumeData();
     const totalVolume = this.getTotalVolume();
     const activeIssuers = allVolumes.filter(v => v.volume24h > 0).length;
-    const totalTransactions = this.transactionHistory.length;
+    const sessionStats = this.getSessionStats();
 
     return {
       totalVolume,
       activeIssuers,
-      totalTransactions,
+      totalTransactions: allVolumes.reduce((sum, v) => sum + v.transactionCount, 0),
       topIssuer: allVolumes[0] || null,
+      sessionMinutes: sessionStats.sessionMinutes,
       lastUpdated: Date.now()
     };
+  }
+
+  /**
+   * Gets cached volume data for a specific issuer
+   * @param {string} issuer - Issuer address
+   * @returns {Object|null} Cached volume data or null if not found
+   */
+  getCachedVolume(issuer) {
+    const volumeInfo = this.volumeData.get(issuer);
+    if (!volumeInfo) return null;
+    
+    return {
+      issuer,
+      currency: volumeInfo.currency,
+      volume24h: volumeInfo.sessionVolume, // Use session volume for compatibility
+      transactionCount: volumeInfo.transactionCount,
+      lastUpdated: volumeInfo.lastUpdated
+    };
+  }
+
+  /**
+   * Gets all cached volume data
+   * @returns {Array} Array of cached volume data
+   */
+  getAllCachedVolumeData() {
+    const result = [];
+    
+    for (const [issuer, volumeInfo] of this.volumeData.entries()) {
+      result.push({
+        issuer,
+        currency: volumeInfo.currency,
+        volume24h: volumeInfo.sessionVolume, // Use session volume for compatibility
+        transactionCount: volumeInfo.transactionCount,
+        lastUpdated: volumeInfo.lastUpdated
+      });
+    }
+
+    return result.sort((a, b) => b.volume24h - a.volume24h);
   }
 }
 

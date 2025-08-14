@@ -10,18 +10,44 @@ import volumeTracker from './volumeTracker.js';
  * @returns {Array} RWA data with volume information added
  */
 export const updateRwaDataWithVolume = (rwaData) => {
-  const volumeData = volumeTracker.getAllVolumeData();
+  const volumeData = volumeTracker.getAllCachedVolumeData();
   const volumeMap = new Map(volumeData.map(v => [v.issuer, v]));
 
   return rwaData.map(region => ({
     ...region,
     assets: region.assets.map(asset => {
-      const volumeInfo = volumeMap.get(asset.issuer);
+      // Handle both single issuer strings and arrays of issuers
+      let totalVolume24h = 0;
+      let totalTransactionCount = 0;
+      let lastVolumeUpdate = null;
+
+      if (Array.isArray(asset.issuer)) {
+        // Sum volume from all issuer addresses
+        asset.issuer.forEach(issuerAddress => {
+          const volumeInfo = volumeMap.get(issuerAddress);
+          if (volumeInfo) {
+            totalVolume24h += volumeInfo.volume24h;
+            totalTransactionCount += volumeInfo.transactionCount;
+            if (!lastVolumeUpdate || volumeInfo.lastUpdated > lastVolumeUpdate) {
+              lastVolumeUpdate = volumeInfo.lastUpdated;
+            }
+          }
+        });
+      } else {
+        // Single issuer
+        const volumeInfo = volumeMap.get(asset.issuer);
+        if (volumeInfo) {
+          totalVolume24h = volumeInfo.volume24h;
+          totalTransactionCount = volumeInfo.transactionCount;
+          lastVolumeUpdate = volumeInfo.lastUpdated;
+        }
+      }
+
       return {
         ...asset,
-        volume24h: volumeInfo ? volumeInfo.volume24h : 0,
-        transactionCount: volumeInfo ? volumeInfo.transactionCount : 0,
-        lastVolumeUpdate: volumeInfo ? volumeInfo.lastUpdated : null
+        volume24h: totalVolume24h,
+        transactionCount: totalTransactionCount,
+        lastVolumeUpdate: lastVolumeUpdate
       };
     })
   }));
@@ -33,18 +59,44 @@ export const updateRwaDataWithVolume = (rwaData) => {
  * @returns {Array} Stablecoin data with volume information added
  */
 export const updateStablecoinDataWithVolume = (stablecoinData) => {
-  const volumeData = volumeTracker.getAllVolumeData();
+  const volumeData = volumeTracker.getAllCachedVolumeData();
   const volumeMap = new Map(volumeData.map(v => [v.issuer, v]));
 
   return stablecoinData.map(region => ({
     ...region,
     coins: region.coins.map(coin => {
-      const volumeInfo = volumeMap.get(coin.issuer);
+      // Handle both single issuer strings and arrays of issuers
+      let totalVolume24h = 0;
+      let totalTransactionCount = 0;
+      let lastVolumeUpdate = null;
+
+      if (Array.isArray(coin.issuer)) {
+        // Sum volume from all issuer addresses
+        coin.issuer.forEach(issuerAddress => {
+          const volumeInfo = volumeMap.get(issuerAddress);
+          if (volumeInfo) {
+            totalVolume24h += volumeInfo.volume24h;
+            totalTransactionCount += volumeInfo.transactionCount;
+            if (!lastVolumeUpdate || volumeInfo.lastUpdated > lastVolumeUpdate) {
+              lastVolumeUpdate = volumeInfo.lastUpdated;
+            }
+          }
+        });
+      } else {
+        // Single issuer
+        const volumeInfo = volumeMap.get(coin.issuer);
+        if (volumeInfo) {
+          totalVolume24h = volumeInfo.volume24h;
+          totalTransactionCount = volumeInfo.transactionCount;
+          lastVolumeUpdate = volumeInfo.lastUpdated;
+        }
+      }
+
       return {
         ...coin,
-        volume24h: volumeInfo ? volumeInfo.volume24h : 0,
-        transactionCount: volumeInfo ? volumeInfo.transactionCount : 0,
-        lastVolumeUpdate: volumeInfo ? volumeInfo.lastUpdated : null
+        volume24h: totalVolume24h,
+        transactionCount: totalTransactionCount,
+        lastVolumeUpdate: lastVolumeUpdate
       };
     })
   }));

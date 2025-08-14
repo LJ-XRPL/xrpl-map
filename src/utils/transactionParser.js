@@ -17,14 +17,28 @@ const buildIssuerCurrencyMap = () => {
   // Add RWA issuers
   rwaData.forEach(region => {
     region.assets.forEach(asset => {
-      issuerMap[asset.issuer] = asset.currency;
+      // Handle both single issuer strings and arrays of issuers
+      if (Array.isArray(asset.issuer)) {
+        asset.issuer.forEach(issuerAddress => {
+          issuerMap[issuerAddress] = asset.currency;
+        });
+      } else {
+        issuerMap[asset.issuer] = asset.currency;
+      }
     });
   });
   
   // Add stablecoin issuers
   stablecoinData.forEach(region => {
     region.coins.forEach(coin => {
-      issuerMap[coin.issuer] = coin.currency;
+      // Handle both single issuer strings and arrays of issuers
+      if (Array.isArray(coin.issuer)) {
+        coin.issuer.forEach(issuerAddress => {
+          issuerMap[issuerAddress] = coin.currency;
+        });
+      } else {
+        issuerMap[coin.issuer] = coin.currency;
+      }
     });
   });
   
@@ -147,7 +161,12 @@ const findMatchingIssuer = (tx, mapData) => {
   
   // For Payment transactions, check if the amount issuer matches our tracked issuers
   if (tx.TransactionType === 'Payment' && tx.Amount && typeof tx.Amount === 'object' && tx.Amount.issuer) {
-    const paymentIssuer = mapData.find(item => item.issuer === tx.Amount.issuer);
+    const paymentIssuer = mapData.find(item => {
+      if (Array.isArray(item.issuer)) {
+        return item.issuer.includes(tx.Amount.issuer);
+      }
+      return item.issuer === tx.Amount.issuer;
+    });
     if (paymentIssuer) {
       console.log(`🎯 Found payment issuer from amount: ${paymentIssuer.name} (${paymentIssuer.currency})`);
       return paymentIssuer;
@@ -156,13 +175,23 @@ const findMatchingIssuer = (tx, mapData) => {
   
   // For Payment transactions, also check Account and Destination fields
   if (tx.TransactionType === 'Payment') {
-    const accountIssuer = mapData.find(item => item.issuer === tx.Account);
+    const accountIssuer = mapData.find(item => {
+      if (Array.isArray(item.issuer)) {
+        return item.issuer.includes(tx.Account);
+      }
+      return item.issuer === tx.Account;
+    });
     if (accountIssuer) {
       console.log(`🎯 Found payment issuer from account: ${accountIssuer.name} (${accountIssuer.currency})`);
       return accountIssuer;
     }
     
-    const destinationIssuer = mapData.find(item => item.issuer === tx.Destination);
+    const destinationIssuer = mapData.find(item => {
+      if (Array.isArray(item.issuer)) {
+        return item.issuer.includes(tx.Destination);
+      }
+      return item.issuer === tx.Destination;
+    });
     if (destinationIssuer) {
       console.log(`🎯 Found payment issuer from destination: ${destinationIssuer.name} (${destinationIssuer.currency})`);
       return destinationIssuer;
@@ -170,13 +199,20 @@ const findMatchingIssuer = (tx, mapData) => {
   }
   
   // For other transactions, check Account, Destination, and offer fields
-  return mapData.find(item => 
-    item.issuer === tx.Account || 
-    item.issuer === tx.Destination ||
-    // For offers, check if the currency matches our tracked issuers
-    (tx.TakerPays && typeof tx.TakerPays === 'object' && tx.TakerPays.issuer === item.issuer) ||
-    (tx.TakerGets && typeof tx.TakerGets === 'object' && tx.TakerGets.issuer === item.issuer)
-  );
+  return mapData.find(item => {
+    const checkIssuer = (issuerToCheck) => {
+      if (Array.isArray(item.issuer)) {
+        return item.issuer.includes(issuerToCheck);
+      }
+      return item.issuer === issuerToCheck;
+    };
+    
+    return checkIssuer(tx.Account) || 
+           checkIssuer(tx.Destination) ||
+           // For offers, check if the currency matches our tracked issuers
+           (tx.TakerPays && typeof tx.TakerPays === 'object' && checkIssuer(tx.TakerPays.issuer)) ||
+           (tx.TakerGets && typeof tx.TakerGets === 'object' && checkIssuer(tx.TakerGets.issuer));
+  });
 };
 
 /**

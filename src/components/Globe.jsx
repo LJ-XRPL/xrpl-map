@@ -8,6 +8,7 @@ import TransactionTypeSelector from './TransactionTypeSelector.jsx';
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 import { parseTransaction } from '../utils/transactionParser.js';
+import volumeTracker from '../utils/volumeTracker.js';
 
 const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransactionFilters, onFilterChange }) => {
   const globeRef = useRef();
@@ -88,7 +89,17 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
   // Get real estate overlay props
   const realEstateOverlay = RealEstateOverlay({ mapData, globeRef });
 
-  const issuerAddresses = useMemo(() => [...new Set(mapData.map(item => item.issuer))], [mapData]);
+  const issuerAddresses = useMemo(() => {
+    const addresses = [];
+    mapData.forEach(item => {
+      if (Array.isArray(item.issuer)) {
+        addresses.push(...item.issuer);
+      } else {
+        addresses.push(item.issuer);
+      }
+    });
+    return [...new Set(addresses)];
+  }, [mapData]);
 
   useEffect(() => {
     const init = async () => {
@@ -149,6 +160,32 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
         return; // Skip this transaction type
       }
 
+      // Record transaction in volume tracker for real on-chain volume calculation
+      if (parsedTransaction.amount && typeof parsedTransaction.amount === 'number' && parsedTransaction.amount > 0) {
+        // Find the issuer address for this transaction
+        const issuer = mapData.find(item => {
+          if (Array.isArray(item.issuer)) {
+            return item.issuer.includes(parsedTransaction.from) || item.issuer.includes(parsedTransaction.to);
+          }
+          return item.issuer === parsedTransaction.from || item.issuer === parsedTransaction.to;
+        });
+        
+        if (issuer) {
+          const issuerAddress = Array.isArray(issuer.issuer) 
+            ? (issuer.issuer.includes(parsedTransaction.from) ? parsedTransaction.from : parsedTransaction.to)
+            : issuer.issuer;
+          
+          volumeTracker.recordTransaction({
+            issuer: issuerAddress,
+            currency: parsedTransaction.currency,
+            amount: parsedTransaction.amount,
+            timestamp: parsedTransaction.timestamp
+          });
+          
+          console.log(`📈 Recorded volume: ${parsedTransaction.amount} ${parsedTransaction.currency} for ${issuer.name}`);
+        }
+      }
+
       // Add additional properties for the globe visualization
       const newTransaction = {
         ...parsedTransaction,
@@ -168,7 +205,12 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     if (issuerAddresses.length > 0) {
       console.log(`🔄 Starting continuous transaction polling for ${issuerAddresses.length} issuers:`);
       issuerAddresses.forEach((address, index) => {
-        const issuer = mapData.find(item => item.issuer === address);
+        const issuer = mapData.find(item => {
+          if (Array.isArray(item.issuer)) {
+            return item.issuer.includes(address);
+          }
+          return item.issuer === address;
+        });
         console.log(`  ${index + 1}. ${address} - ${issuer ? issuer.name : 'Unknown'} (${issuer ? issuer.currency : 'Unknown'})`);
       });
       stopPollingRef.current = subscribeToTransactions(issuerAddresses, handleTransaction);
@@ -197,6 +239,32 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
         if (!activeTransactionFilters.includes(parsedTransaction.type)) {
           console.log(`🚫 Reconnection - Filtered out: ${parsedTransaction.type} (not in active filters)`);
           return; // Skip this transaction type
+        }
+
+        // Record transaction in volume tracker for real on-chain volume calculation
+        if (parsedTransaction.amount && typeof parsedTransaction.amount === 'number' && parsedTransaction.amount > 0) {
+          // Find the issuer address for this transaction
+          const issuer = mapData.find(item => {
+            if (Array.isArray(item.issuer)) {
+              return item.issuer.includes(parsedTransaction.from) || item.issuer.includes(parsedTransaction.to);
+            }
+            return item.issuer === parsedTransaction.from || item.issuer === parsedTransaction.to;
+          });
+          
+          if (issuer) {
+            const issuerAddress = Array.isArray(issuer.issuer) 
+              ? (issuer.issuer.includes(parsedTransaction.from) ? parsedTransaction.from : parsedTransaction.to)
+              : issuer.issuer;
+            
+            volumeTracker.recordTransaction({
+              issuer: issuerAddress,
+              currency: parsedTransaction.currency,
+              amount: parsedTransaction.amount,
+              timestamp: parsedTransaction.timestamp
+            });
+            
+            console.log(`📈 Reconnection - Recorded volume: ${parsedTransaction.amount} ${parsedTransaction.currency} for ${issuer.name}`);
+          }
         }
 
         const newTransaction = {

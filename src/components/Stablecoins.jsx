@@ -214,7 +214,15 @@ const Stablecoins = ({ stablecoinData, isLoading }) => {
                   {coin.city === 'São Paulo' && '🇧🇷'}
                   {coin.city === 'Paris' && '🇫🇷'}
                 </span>
-                {truncateAddress(coin.issuer)}
+                {Array.isArray(coin.issuer) 
+                  ? coin.issuer.map((addr, idx) => (
+                      <span key={idx}>
+                        {truncateAddress(addr)}
+                        {idx < coin.issuer.length - 1 && <br />}
+                      </span>
+                    ))
+                  : truncateAddress(coin.issuer)
+                }
               </a>
               <div className="asset-stats">
                 <div className="asset-stat-item">
@@ -223,7 +231,7 @@ const Stablecoins = ({ stablecoinData, isLoading }) => {
                 </div>
                 <div className="asset-stat-item">
                   <span className="stat-label">24H VOL {coin.volume24h && coin.volume24h > 0 ? '🟢' : '⚪'}</span>
-                  <span>${(coin.volume24h || (coin.amount * 0.05)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span>${(coin.volume24h || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
               </div>
             </div>

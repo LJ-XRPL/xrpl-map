@@ -221,7 +221,15 @@ const Sidebar = ({ rwaData, isLoading }) => {
                   {asset.city === 'London' && '🇬🇧'}
                   {asset.city === 'Riyadh' && '🇸🇦'}
                 </span>
-                {truncateAddress(asset.issuer)}
+                {Array.isArray(asset.issuer) 
+                  ? asset.issuer.map((addr, idx) => (
+                      <span key={idx}>
+                        {truncateAddress(addr)}
+                        {idx < asset.issuer.length - 1 && <br />}
+                      </span>
+                    ))
+                  : truncateAddress(asset.issuer)
+                }
               </a>
               <div className="asset-stats">
                 <div className="asset-stat-item">
@@ -230,7 +238,7 @@ const Sidebar = ({ rwaData, isLoading }) => {
                 </div>
                 <div className="asset-stat-item">
                   <span className="stat-label">24H VOL {asset.volume24h && asset.volume24h > 0 ? '🟢' : '⚪'}</span>
-                  <span>${(asset.volume24h || (asset.amount * 0.05)).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span>${(asset.volume24h || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
                 </div>
               </div>
             </div>

@@ -8,6 +8,7 @@ import rwaData from './data/rwas.js';
 import stablecoinData from './data/stablecoins.js';
 import { refreshAllSupplies } from './utils/supplyFetcher.js';
 import { getVolumeDataForDisplay } from './utils/volumeIntegrator.js';
+import { getMarketStatistics, validateAndUpdateMarketCaps } from './utils/marketCalculations.js';
 import { Analytics } from '@vercel/analytics/react';
 import './styles/App.css';
 
@@ -76,31 +77,22 @@ function App() {
 
   // Calculate total market cap from all assets using live data
   const totalStats = useMemo(() => {
-    // Sum all RWA amounts
-    const rwaTotal = liveRwaData.reduce((total, region) => {
-      return total + region.assets.reduce((regionTotal, asset) => regionTotal + asset.amount, 0);
-    }, 0);
-
-    // Sum all stablecoin amounts
-    const stablecoinTotal = liveStablecoinData.reduce((total, region) => {
-      return total + region.coins.reduce((regionTotal, coin) => regionTotal + coin.amount, 0);
-    }, 0);
-
-    const totalMarketCap = rwaTotal + stablecoinTotal;
+    // Use the new market calculations utility
+    const marketStats = getMarketStatistics(liveRwaData, liveStablecoinData);
     
-    // Use real volume data if available, otherwise fallback to simulated
-    let total24hVolume = 0;
+    // Use real on-chain volume data only
+    let total24hVolume = marketStats.totalVolume;
     if (volumeData && volumeData.totalStats) {
       total24hVolume = volumeData.totalStats.totalVolume;
-    } else {
-      // Fallback to simulated volume (5% of market cap)
-      total24hVolume = totalMarketCap * 0.05;
     }
 
     return {
-      totalSupply: totalMarketCap,
-      marketCap: totalMarketCap,
-      volume24h: total24hVolume
+      totalSupply: marketStats.totalMarketCap,
+      marketCap: marketStats.totalMarketCap,
+      volume24h: total24hVolume,
+      activeAssets: marketStats.activeAssets,
+      totalAssets: marketStats.totalAssets,
+      volumeToMarketCapRatio: marketStats.volumeToMarketCapRatio
     };
   }, [liveRwaData, liveStablecoinData, volumeData]);
 
