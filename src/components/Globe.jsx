@@ -101,6 +101,10 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     return [...new Set(addresses)];
   }, [mapData]);
 
+
+
+
+
   useEffect(() => {
     const init = async () => {
       setIsConnecting(true);
@@ -377,122 +381,122 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     };
   }, []);
 
-  return (
-    <div ref={containerRef} className="globe-container">
-      <GlobeGL
-        ref={globeRef}
-        backgroundColor="#000000"
-        width={size.width}
-        height={size.height}
-        // Enhanced rendering quality
-        enablePointerInteraction={true}
-        enableGlobeInteraction={true}
-        // Realistic Earth texture
-        globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
-        bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
-        // Crisp graticules with better visibility
-        showGraticules={true}
-                graticulesLineColor={'rgba(255, 255, 255, 0.3)'}
-        graticulesResolution={15}
-        // Country outlines only
-        polygonsData={countries.features}
-        polygonCapColor={() => 'rgba(0, 0, 0, 0)'} // Transparent
-        polygonSideColor={() => 'rgba(0, 0, 0, 0)'} // Transparent
-        polygonStrokeColor={() => 'rgba(255, 255, 255, 0.4)'} // White borders
-        polygonStroke={0.5}
-        polygonAltitude={() => 0} // No elevation
-        // Subtle white atmosphere
-        showAtmosphere={true}
-        atmosphereColor={'#ffffff'}
-        atmosphereAltitude={0.15}
-        pointsData={filteredMapData}
-        pointLat={d => d.lat}
-        pointLng={d => d.lng}
-        pointColor={d => {
-          // Enhanced point colors with glow effect
-          const baseColor = d.type === 'RWA' ? [0, 255, 136] : [255, 107, 107];
-          const intensity = Math.sin(animationTime * 0.001 + d.lat + d.lng) * 0.3 + 0.7;
-          return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${intensity})`;
-        }}
-        pointAltitude={d => {
-          // Variable altitude based on amount for visual hierarchy
-          const logAmount = Math.log10(d.amount || 1);
-          return 0.02 + (logAmount / 100);
-        }}
-        pointRadius={d => {
-          // Variable radius based on amount
-          const logAmount = Math.log10(d.amount || 1);
-          return 0.5 + (logAmount / 20);
-        }}
-        pointLabel={d => `
-          <div style="
-            color: white; 
-            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,40,0.9)); 
-            padding: 8px 12px; 
-            border-radius: 8px;
-            border: 1px solid ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
-          ">
-            <strong style="color: ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};">${d.name}</strong><br/>
-            📍 ${d.city}<br/>
-            💰 ${d.amount.toLocaleString()} ${d.currency}<br/>
-            <small style="opacity: 0.7;">${d.type} Asset</small>
-          </div>
-        `}
-        ringsData={transactions}
-        ringLat={d => d.lat}
-        ringLng={d => d.lng}
-        ringMaxRadius={d => {
-          // Variable ring size based on transaction amount
-          const logAmount = Math.log10(d.amount || 1);
-          return 2 + (logAmount / 5);
-        }}
-        ringPropagationSpeed={d => d.type === 'Payment' ? 4 : 2} // Faster for payments
-        ringRepeatPeriod={2000}
-        ringColor={d => {
-          // Enhanced ring colors with opacity gradient
-          if (!d.color) return 'rgba(255, 255, 255, 0.5)';
-          const alpha = Math.sin(animationTime * 0.003) * 0.3 + 0.7;
-          // Extract RGB from hex color or use the color directly if it's already rgba
-          if (d.color.startsWith('#')) {
-            const r = parseInt(d.color.slice(1, 3), 16);
-            const g = parseInt(d.color.slice(3, 5), 16);
-            const b = parseInt(d.color.slice(5, 7), 16);
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-          }
-          return d.color; // Return as-is if already in rgba format
-        }}
-        ringResolution={128} // Higher resolution for smoother rings
-        // Enhanced arcs with more dynamic behavior
-        arcsData={transactions}
-        arcStartLat={d => d.lat}
-        arcStartLng={d => d.lng}
-        arcEndLat={d => {
-          // More sophisticated arc destinations
-          const range = d.type === 'Payment' ? 30 : 15;
-          return d.lat + (Math.random() - 0.5) * range;
-        }}
-        arcEndLng={d => {
-          const range = d.type === 'Payment' ? 30 : 15;
-          return d.lng + (Math.random() - 0.5) * range;
-        }}
-        arcColor={d => d.color}
-        arcAltitude={d => {
-          // Variable arc height based on transaction type
-          return d.type === 'Payment' ? 0.4 : 0.25;
-        }}
-        arcStroke={d => d.type === 'Payment' ? 1 : 0.5}
-        arcDashLength={3}
-        arcDashGap={2}
-        arcDashAnimateTime={d => d.type === 'Payment' ? 2000 : 3000}
-        objectsData={realEstateOverlay.objectsData}
-        objectLat={realEstateOverlay.objectLat}
-        objectLng={realEstateOverlay.objectLng}
-        objectAltitude={realEstateOverlay.objectAltitude}
-        objectThreeObject={realEstateOverlay.objectThreeObject}
-        objectLabel={realEstateOverlay.objectLabel}
-      />
+      return (
+      <div ref={containerRef} className="globe-container">
+        <GlobeGL
+          ref={globeRef}
+          backgroundColor="#000000"
+          width={size.width}
+          height={size.height}
+          // Enhanced rendering quality
+          enablePointerInteraction={true}
+          enableGlobeInteraction={true}
+          // Realistic Earth texture
+          globeImageUrl="//unpkg.com/three-globe/example/img/earth-blue-marble.jpg"
+          bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
+          // Crisp graticules with better visibility
+          showGraticules={true}
+          graticulesLineColor={'rgba(255, 255, 255, 0.3)'}
+          graticulesResolution={15}
+          // Country outlines only
+          polygonsData={countries.features}
+          polygonCapColor={() => 'rgba(0, 0, 0, 0)'} // Transparent
+          polygonSideColor={() => 'rgba(0, 0, 0, 0)'} // Transparent
+          polygonStrokeColor={() => 'rgba(255, 255, 255, 0.4)'} // White borders
+          polygonStroke={0.5}
+          polygonAltitude={() => 0} // No elevation
+          // Subtle white atmosphere
+          showAtmosphere={true}
+          atmosphereColor={'#ffffff'}
+          atmosphereAltitude={0.15}
+          pointsData={filteredMapData}
+          pointLat={d => d.lat}
+          pointLng={d => d.lng}
+          pointColor={d => {
+            // Enhanced point colors with glow effect
+            const baseColor = d.type === 'RWA' ? [0, 255, 136] : [255, 107, 107];
+            const intensity = Math.sin(animationTime * 0.001 + d.lat + d.lng) * 0.3 + 0.7;
+            return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${intensity})`;
+          }}
+          pointAltitude={d => {
+            // Variable altitude based on amount for visual hierarchy
+            const logAmount = Math.log10(d.amount || 1);
+            return 0.02 + (logAmount / 100);
+          }}
+          pointRadius={d => {
+            // Variable radius based on amount
+            const logAmount = Math.log10(d.amount || 1);
+            return 0.5 + (logAmount / 20);
+          }}
+          pointLabel={d => `
+            <div style="
+              color: white; 
+              background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,40,0.9)); 
+              padding: 8px 12px; 
+              border-radius: 8px;
+              border: 1px solid ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};
+              box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+              backdrop-filter: blur(10px);
+            ">
+              <strong style="color: ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};">${d.name}</strong><br/>
+              📍 ${d.city}<br/>
+              💰 ${d.amount.toLocaleString()} ${d.currency}<br/>
+              <small style="opacity: 0.7;">${d.type} Asset</small>
+            </div>
+          `}
+          ringsData={transactions}
+          ringLat={d => d.lat}
+          ringLng={d => d.lng}
+          ringMaxRadius={d => {
+            // Variable ring size based on transaction amount
+            const logAmount = Math.log10(d.amount || 1);
+            return 2 + (logAmount / 5);
+          }}
+          ringPropagationSpeed={d => d.type === 'Payment' ? 4 : 2} // Faster for payments
+          ringRepeatPeriod={2000}
+          ringColor={d => {
+            // Enhanced ring colors with opacity gradient
+            if (!d.color) return 'rgba(255, 255, 255, 0.5)';
+            const alpha = Math.sin(animationTime * 0.003) * 0.3 + 0.7;
+            // Extract RGB from hex color or use the color directly if it's already rgba
+            if (d.color.startsWith('#')) {
+              const r = parseInt(d.color.slice(1, 3), 16);
+              const g = parseInt(d.color.slice(3, 5), 16);
+              const b = parseInt(d.color.slice(5, 7), 16);
+              return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+            return d.color; // Return as-is if already in rgba format
+          }}
+          ringResolution={128} // Higher resolution for smoother rings
+          // Enhanced arcs with more dynamic behavior
+          arcsData={transactions}
+          arcStartLat={d => d.lat}
+          arcStartLng={d => d.lng}
+          arcEndLat={d => {
+            // More sophisticated arc destinations
+            const range = d.type === 'Payment' ? 30 : 15;
+            return d.lat + (Math.random() - 0.5) * range;
+          }}
+          arcEndLng={d => {
+            const range = d.type === 'Payment' ? 30 : 15;
+            return d.lng + (Math.random() - 0.5) * range;
+          }}
+          arcColor={d => d.color}
+          arcAltitude={d => {
+            // Variable arc height based on transaction type
+            return d.type === 'Payment' ? 0.4 : 0.25;
+          }}
+          arcStroke={d => d.type === 'Payment' ? 1 : 0.5}
+          arcDashLength={3}
+          arcDashGap={2}
+          arcDashAnimateTime={d => d.type === 'Payment' ? 2000 : 3000}
+          objectsData={realEstateOverlay.objectsData}
+          objectLat={realEstateOverlay.objectLat}
+          objectLng={realEstateOverlay.objectLng}
+          objectAltitude={realEstateOverlay.objectAltitude}
+          objectThreeObject={realEstateOverlay.objectThreeObject}
+          objectLabel={realEstateOverlay.objectLabel}
+        />
       
       <div className="xrpl-logo-overlay">
         <img src={`${process.env.PUBLIC_URL}/xrpl-white.svg`} alt="XRPL" className="xrpl-logo" />
