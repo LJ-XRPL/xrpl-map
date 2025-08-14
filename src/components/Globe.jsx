@@ -288,6 +288,8 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     }
   }, [isConnected, issuerAddresses, mapData, onTransactionUpdate, activeTransactionFilters]);
 
+
+
   useEffect(() => {
     // Load topojson library if not already loaded
     const loadTopoJSON = async () => {

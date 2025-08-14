@@ -8,7 +8,7 @@ import rwaData from './data/rwas.js';
 import stablecoinData from './data/stablecoins.js';
 import { refreshAllSupplies } from './utils/supplyFetcher.js';
 import { getVolumeDataForDisplay } from './utils/volumeIntegrator.js';
-import { getMarketStatistics, validateAndUpdateMarketCaps } from './utils/marketCalculations.js';
+import { getMarketStatistics } from './utils/marketCalculations.js';
 import { Analytics } from '@vercel/analytics/react';
 import './styles/App.css';
 
