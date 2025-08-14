@@ -184,9 +184,6 @@ function App() {
       <div className={`mobile-pullup-tab ${isMobileTabExpanded ? 'expanded' : ''}`}>
         <div className="pullup-handle" onClick={() => setIsMobileTabExpanded(!isMobileTabExpanded)}>
           <div className="handle-indicator"></div>
-          <div className="handle-text">
-            {mobileActiveSection === 'rwas' ? '📊 Real-World Assets' : '💰 Stablecoins'}
-          </div>
         </div>
         
         <div className="pullup-content">
