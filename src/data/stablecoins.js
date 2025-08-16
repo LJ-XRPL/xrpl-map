@@ -10,7 +10,6 @@ const stablecoinData = [
         "navPrice": 1,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 65905296, // USD market cap
         "city": "New York",
         "lat": 40.7128,
         "lng": -74.0060
@@ -23,7 +22,6 @@ const stablecoinData = [
         "navPrice": 1,
         "navPriceCurrency": "BRL",
         "exchangeRate": 0.01163,
-        "amount": 16240, // USD market cap after exchange rate
         "city": "São Paulo",
         "lat": -23.5505,
         "lng": -46.6333
@@ -36,7 +34,6 @@ const stablecoinData = [
         "navPrice": 1,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 7000000, // USD market cap
         "city": "New York",
         "lat": 40.7128,
         "lng": -74.0060
@@ -54,7 +51,6 @@ const stablecoinData = [
         "navPrice": 1,
         "navPriceCurrency": "EUR",
         "exchangeRate": 1.08,
-        "amount": 44683, // USD market cap after exchange rate
         "city": "Paris",
         "lat": 48.8566,
         "lng": 2.3522

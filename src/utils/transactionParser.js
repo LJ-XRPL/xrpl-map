@@ -5,7 +5,7 @@
 
 import rwaData from '../data/rwas.js';
 import stablecoinData from '../data/stablecoins.js';
-import volumeTracker from './volumeTracker.js';
+import volumeManager from './volumeManager.js';
 
 /**
  * Builds a mapping of issuer addresses to currency codes from data files
@@ -52,7 +52,8 @@ const buildIssuerCurrencyMap = () => {
  * @returns {Object|null} - Parsed transaction object or null if should be filtered
  */
 export const parseTransaction = (txData, mapData) => {
-  const tx = txData.transaction;
+  // Handle both direct transaction objects and wrapped transaction objects
+  const tx = txData.transaction || txData;
   const meta = txData.meta;
   const hash = txData.hash || tx.hash;
   
@@ -74,6 +75,11 @@ export const parseTransaction = (txData, mapData) => {
       console.log(`🔍 Transaction meta data:`, JSON.stringify(txData.meta, null, 2));
     }
   }
+  
+  // Debug: Log all transaction types for debugging
+  console.log(`🔍 Processing transaction: ${tx.TransactionType} - Hash: ${hash}`);
+  console.log(`📊 Map data length:`, mapData?.length || 0);
+  console.log(`📊 Map data sample:`, mapData?.slice(0, 2));
   
   // Find the correct issuer based on the transaction account
   const issuer = findMatchingIssuer(tx, mapData);
@@ -133,7 +139,7 @@ export const parseTransaction = (txData, mapData) => {
 
   // Record transaction for volume tracking
   if (amount && typeof amount === 'number' && amount > 0) {
-    volumeTracker.recordTransaction({
+            volumeManager.recordTransaction({
       issuer: issuer.issuer,
       currency: currency,
       amount: amount,
@@ -333,7 +339,7 @@ const parsePaymentAmount = (txAmount, issuer) => {
     // XRP payment in drops
     const xrpAmount = parseInt(txAmount) / 1000000;
     if (xrpAmount > 0) {
-      amount = xrpAmount.toFixed(2);
+      amount = xrpAmount; // Return as number, not string
       currency = 'XRP';
       console.log(`💰 XRP Payment: ${amount} XRP`);
     }
@@ -341,7 +347,7 @@ const parsePaymentAmount = (txAmount, issuer) => {
     // Token payment - issued currency
     const amountValue = parseFloat(txAmount.value);
     if (!isNaN(amountValue) && amountValue > 0) {
-      amount = amountValue.toFixed(2);
+      amount = amountValue; // Return as number, not string
       // Get the correct currency for this issuer
       currency = getCurrencyFromIssuer(txAmount.issuer, issuer);
       console.log(`💰 Token Payment: ${amount} ${currency} from issuer ${txAmount.issuer}`);
@@ -356,7 +362,7 @@ const parsePaymentAmount = (txAmount, issuer) => {
       if (txAmount[field] !== undefined) {
         const amountValue = parseFloat(txAmount[field]);
         if (!isNaN(amountValue) && amountValue > 0) {
-          amount = amountValue.toFixed(2);
+          amount = amountValue; // Return as number, not string
           currency = getCurrencyFromIssuer(txAmount.issuer || txAmount.account, issuer);
           console.log(`💰 Found amount in field '${field}': ${amount} ${currency}`);
           break;
@@ -381,14 +387,14 @@ const parseOfferAmount = (takerPays, issuer) => {
   if (typeof takerPays === 'object' && takerPays.value) {
     const offerAmount = parseFloat(takerPays.value);
     if (!isNaN(offerAmount) && offerAmount > 0) {
-      amount = offerAmount.toFixed(2);
+      amount = offerAmount; // Return as number, not string
       currency = issuer.currency;
     }
   } else if (typeof takerPays === 'string') {
     // XRP offer
     const xrpAmount = parseInt(takerPays) / 1000000;
     if (xrpAmount > 0) {
-      amount = xrpAmount.toFixed(2);
+      amount = xrpAmount; // Return as number, not string
       currency = 'XRP';
     }
   }
@@ -420,7 +426,7 @@ const extractAmountFromMeta = (meta, issuer) => {
             if (balance.issuer === issuer.issuer) {
               const balanceValue = parseFloat(balance.value);
               if (!isNaN(balanceValue) && balanceValue > 0) {
-                amount = balanceValue.toFixed(2);
+                amount = balanceValue; // Return as number, not string
                 currency = balance.currency; // Use the actual currency from the transaction
                 console.log(`💰 Found balance change in meta: ${amount} ${currency} for issuer ${balance.issuer}`);
                 return { amount, currency };
@@ -438,7 +444,7 @@ const extractAmountFromMeta = (meta, issuer) => {
             if (balance.issuer === issuer.issuer) {
               const balanceValue = parseFloat(balance.value);
               if (!isNaN(balanceValue) && balanceValue > 0) {
-                amount = balanceValue.toFixed(2);
+                amount = balanceValue; // Return as number, not string
                 currency = balance.currency; // Use the actual currency from the transaction
                 console.log(`💰 Found new balance in meta: ${amount} ${currency} for issuer ${balance.issuer}`);
                 return { amount, currency };
@@ -454,7 +460,7 @@ const extractAmountFromMeta = (meta, issuer) => {
       if (typeof meta.delivered_amount === 'object' && meta.delivered_amount.value) {
         const deliveredValue = parseFloat(meta.delivered_amount.value);
         if (!isNaN(deliveredValue) && deliveredValue > 0) {
-          amount = deliveredValue.toFixed(2);
+          amount = deliveredValue; // Return as number, not string
           currency = meta.delivered_amount.currency; // Use the actual currency from the transaction
           console.log(`💰 Found delivered_amount in meta: ${amount} ${currency} for issuer ${meta.delivered_amount.issuer}`);
           return { amount, currency };

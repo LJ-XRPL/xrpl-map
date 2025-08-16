@@ -17,6 +17,36 @@ A real-time visualization dashboard for XRPL (XRP Ledger) infrastructure, showca
 
 [View Live Demo](https://your-deployment-url.vercel.app) *(Replace with actual deployment URL)*
 
+## 🐦 Twitter Integration
+
+The dashboard includes automatic Twitter integration that posts tweets for new XRPL transactions in the background.
+
+### Setup Instructions
+
+1. **Create a Twitter Developer Account**
+   - Go to [Twitter Developer Portal](https://developer.twitter.com/)
+   - Apply for a developer account and create an app
+   - Enable OAuth 2.0 and generate a Bearer Token
+
+2. **Add Environment Variables**
+   Create a `.env` file in your project root:
+   ```bash
+   REACT_APP_TWITTER_BEARER_TOKEN=your_bearer_token_here
+   ```
+
+3. **Automatic Operation**
+   - Once configured, tweets are posted automatically for every new transaction
+   - No user interaction required - runs silently in the background
+   - Check browser console for tweet status and any errors
+
+### Tweet Features
+- **Automatic Posting**: Posts for every new transaction with amount > 0
+- **Smart Formatting**: Amounts formatted as K/M for readability
+- **Hashtag Optimization**: Includes relevant XRPL and blockchain hashtags
+- **Character Limit**: Automatically truncates to stay under 280 characters
+- **Error Handling**: Graceful fallback if Twitter API is unavailable
+- **Background Operation**: Runs silently without UI controls
+
 ## 📱 Screenshots
 
 ### Desktop View

@@ -7,10 +7,9 @@ const rwaData = [
         "issuer": "rsj2HzZNaQNihtX2nPJSxVZuUBrNSCMYXi",
         "currency": "VRT",
         "unitsIssued": 139125000,
-        "navPrice": 1.18,
+        "navPrice": 1.24,
         "navPriceCurrency": "USD",
-        "exchangeRate": 0.1836,
-        "amount": 135794195, // USD market cap after exchange rate
+        "exchangeRate": 0.79,
         "city": "São Paulo",
         "lat": -23.5505,
         "lng": -46.6333
@@ -23,7 +22,6 @@ const rwaData = [
         "navPrice": 112.06,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 30179904, // USD market cap
         "city": "New York",
         "lat": 40.7128,
         "lng": -74.0060
@@ -36,7 +34,6 @@ const rwaData = [
         "navPrice": 1,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 10000000, // USD market cap
         "city": "New York",
         "lat": 40.7128,
         "lng": -74.0060
@@ -57,7 +54,6 @@ const rwaData = [
         "navPrice": 1,
         "navPriceCurrency": "AED",
         "exchangeRate": 0.2723,
-        "amount": 5783575, // USD market cap after exchange rate
         "city": "Dubai",
         "lat": 25.2048,
         "lng": 55.2708
@@ -70,7 +66,6 @@ const rwaData = [
         "navPrice": 1,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 100000, // USD market cap
         "city": "Riyadh",
         "lat": 24.7136,
         "lng": 46.6753
@@ -83,7 +78,6 @@ const rwaData = [
         "navPrice": 1,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 80301333, // USD market cap
         "city": "London",
         "lat": 51.5074,
         "lng": -0.1278
@@ -101,10 +95,9 @@ const rwaData = [
         ],
         "currency": "OE",
         "unitsIssued": 58778686,
-        "navPrice": 1.112785,
+        "navPrice": 1.2796,
         "navPriceCurrency": "USD",
         "exchangeRate": 1,
-        "amount": 65408040, // USD market cap
         "city": "Singapore",
         "lat": 1.3521,
         "lng": 103.8198

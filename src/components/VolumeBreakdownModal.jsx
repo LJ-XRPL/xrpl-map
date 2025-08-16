@@ -1,12 +1,12 @@
 import React from 'react';
-import volumeTracker from '../utils/volumeTracker.js';
+import volumeManager from '../utils/volumeManager.js';
 
 const VolumeBreakdownModal = ({ isOpen, onClose, rwaData, stablecoinData }) => {
   if (!isOpen) return null;
 
   // Get volume data for analysis
-  const allVolumeData = volumeTracker.getAllVolumeData();
-  const totalStats = volumeTracker.getVolumeStats();
+  const allVolumeData = volumeManager.getAllVolumeData();
+  const totalStats = volumeManager.getVolumeStats();
   
   // Categorize volume data by asset type
   const rwaIssuers = new Set();

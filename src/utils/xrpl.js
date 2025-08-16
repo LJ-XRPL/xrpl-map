@@ -220,9 +220,9 @@ export const startTransactionReplay = (addresses, onTransaction, replayIntervalM
 };
 
 // Start polling for transactions with Payment prioritization (original function)
-export const startTransactionPolling = (addresses, onTransaction, intervalMs = 10000) => {
+export const startTransactionPolling = (addresses, onTransaction, intervalMs = 5000) => {
   const seenTransactions = new Set();
-  const paymentIntervalMs = Math.max(intervalMs / 2, 5000); // Payment polling at half interval, minimum 5s
+  const paymentIntervalMs = Math.max(intervalMs / 2, 3000); // Payment polling at half interval, minimum 3s
   let isPollingActive = true;
   
       const pollTransactions = async () => {
@@ -230,8 +230,12 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
       
       for (const address of addresses) {
         try {
-          const transactions = await getAccountTransactions(address, 10);
+                  const transactions = await getAccountTransactions(address, 25);
+        if (transactions.length > 0) {
           console.log(`🔍 Polling ${address}: Found ${transactions.length} transactions`);
+        } else {
+          console.log(`🔍 Polling ${address}: No new transactions found`);
+        }
         
         // Sort transactions to prioritize Payment transactions
         const sortedTransactions = transactions.sort((a, b) => {
@@ -270,6 +274,8 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
             hash: hash
           });
           
+          console.log(`✅ Transaction received and being sent to parser`);
+          
           // Call the callback with the transaction
           onTransaction({
             transaction: tx,
@@ -296,12 +302,16 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
     
     for (const address of addresses) {
       try {
-        const transactions = await getAccountTransactions(address, 5); // Smaller batch for faster processing
+        const transactions = await getAccountTransactions(address, 15); // Larger batch for more transactions
         
         // Filter for Payment transactions only
         const paymentTransactions = transactions.filter(txData =>   
           txData.tx_json?.TransactionType === 'Payment'
         );
+        
+        if (paymentTransactions.length > 0) {
+          console.log(`💳 Payment polling ${address}: Found ${paymentTransactions.length} payment transactions`);
+        }
         
         for (const txData of paymentTransactions) {
           const tx = txData.tx_json;
@@ -332,9 +342,9 @@ export const startTransactionPolling = (addresses, onTransaction, intervalMs = 1
     }
   };
 
-  // Initial poll after 3 seconds
-  setTimeout(pollTransactions, 3000);
-  setTimeout(pollPaymentsOnly, 5000); // Start payment polling 2 seconds after main polling
+  // Initial poll after 1 second
+  setTimeout(pollTransactions, 1000);
+  setTimeout(pollPaymentsOnly, 2000); // Start payment polling 1 second after main polling
   
   // Heartbeat to ensure continuous polling
   const heartbeat = () => {

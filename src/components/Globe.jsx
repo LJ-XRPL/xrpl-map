@@ -8,7 +8,8 @@ import TransactionTypeSelector from './TransactionTypeSelector.jsx';
 import { connect, disconnect, subscribeToTransactions, unsubscribeFromTransactions } from '../utils/xrpl.js';
 import { getTransactionColor } from '../utils/transactionSimulator.js';
 import { parseTransaction } from '../utils/transactionParser.js';
-import volumeTracker from '../utils/volumeTracker.js';
+import volumeManager from '../utils/volumeManager.js';
+import twitterIntegration from '../utils/twitterIntegration.js';
 
 const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransactionFilters, onFilterChange }) => {
   const globeRef = useRef();
@@ -42,48 +43,51 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
       return true;
     });
 
-    // Group issuers by location and add offsets to prevent overlap
+    // Group issuers by location and create cluster representation
     const locationGroups = {};
     filtered.forEach(item => {
-      const locationKey = `${item.lat.toFixed(3)},${item.lng.toFixed(3)}`;
+      const locationKey = `${item.lat.toFixed(2)},${item.lng.toFixed(2)}`; // Less precise grouping
       if (!locationGroups[locationKey]) {
         locationGroups[locationKey] = [];
       }
       locationGroups[locationKey].push(item);
     });
 
-    // Add offsets to items in the same location
-    return filtered.map(item => {
-      const locationKey = `${item.lat.toFixed(3)},${item.lng.toFixed(3)}`;
-      const group = locationGroups[locationKey];
-      
-      if (group.length === 1) {
-        return item; // No offset needed for single items
+    // Create cluster points for multiple issuers in same location
+    const clusterPoints = [];
+    
+    Object.entries(locationGroups).forEach(([locationKey, items]) => {
+      if (items.length === 1) {
+        // Single issuer - show as normal point
+        clusterPoints.push({
+          ...items[0],
+          isCluster: false,
+          clusterSize: 1
+        });
+      } else {
+        // Multiple issuers - create cluster point
+        const avgLat = items.reduce((sum, item) => sum + item.lat, 0) / items.length;
+        const avgLng = items.reduce((sum, item) => sum + item.lng, 0) / items.length;
+        const totalAmount = items.reduce((sum, item) => sum + (item.amount || 0), 0);
+        const currencies = [...new Set(items.map(item => item.currency))];
+        
+        clusterPoints.push({
+          lat: avgLat,
+          lng: avgLng,
+          name: `${items.length} Assets`,
+          city: items[0].city,
+          amount: totalAmount,
+          currency: currencies.join('/'),
+          type: 'Cluster',
+          isCluster: true,
+          clusterSize: items.length,
+          clusterItems: items,
+          issuer: items.map(item => item.issuer).flat()
+        });
       }
-
-      // Calculate offset based on position in group
-      const index = group.findIndex(groupItem => 
-        groupItem.issuer === item.issuer && groupItem.currency === item.currency
-      );
-      
-      if (index === -1) return item;
-
-      // Create a small offset pattern (spiral-like)
-      const angle = (index / group.length) * 2 * Math.PI;
-      const radius = 0.005; // Much smaller offset radius (about 500m)
-      const offsetLat = Math.cos(angle) * radius;
-      const offsetLng = Math.sin(angle) * radius;
-
-      // Ensure coordinates stay within valid bounds
-      const newLat = Math.max(-90, Math.min(90, item.lat + offsetLat));
-      const newLng = Math.max(-180, Math.min(180, item.lng + offsetLng));
-
-      return {
-        ...item,
-        lat: newLat,
-        lng: newLng
-      };
     });
+
+    return clusterPoints;
   }, [mapData]);
 
   // Get real estate overlay props
@@ -100,6 +104,8 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     });
     return [...new Set(addresses)];
   }, [mapData]);
+
+
 
 
 
@@ -147,8 +153,14 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
   useEffect(() => {
     if (!isConnected) return;
 
+    // Start volume tracking
+    volumeManager.startTracking(mapData);
+
     const handleTransaction = (txData) => {
-      // Use the transaction parser utility
+      // Process transaction for volume tracking
+      volumeManager.processTransaction(txData);
+
+      // Use the transaction parser utility for display
       const parsedTransaction = parseTransaction(txData, mapData);
       
       if (!parsedTransaction) {
@@ -164,31 +176,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
         return; // Skip this transaction type
       }
 
-      // Record transaction in volume tracker for real on-chain volume calculation
-      if (parsedTransaction.amount && typeof parsedTransaction.amount === 'number' && parsedTransaction.amount > 0) {
-        // Find the issuer address for this transaction
-        const issuer = mapData.find(item => {
-          if (Array.isArray(item.issuer)) {
-            return item.issuer.includes(parsedTransaction.from) || item.issuer.includes(parsedTransaction.to);
-          }
-          return item.issuer === parsedTransaction.from || item.issuer === parsedTransaction.to;
-        });
-        
-        if (issuer) {
-          const issuerAddress = Array.isArray(issuer.issuer) 
-            ? (issuer.issuer.includes(parsedTransaction.from) ? parsedTransaction.from : parsedTransaction.to)
-            : issuer.issuer;
-          
-          volumeTracker.recordTransaction({
-            issuer: issuerAddress,
-            currency: parsedTransaction.currency,
-            amount: parsedTransaction.amount,
-            timestamp: parsedTransaction.timestamp
-          });
-          
-          console.log(`📈 Recorded volume: ${parsedTransaction.amount} ${parsedTransaction.currency} for ${issuer.name}`);
-        }
-      }
+      console.log(`✅ Transaction passed filters: ${parsedTransaction.type}`);
 
       // Add additional properties for the globe visualization
       const newTransaction = {
@@ -198,8 +186,37 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
 
       setTransactions(prev => [...prev, newTransaction].slice(-50));
       onTransactionUpdate?.(prev => [newTransaction, ...prev].slice(0, 100));
+      
+      console.log(`📤 Sent transaction to feed: ${newTransaction.type} - ${newTransaction.amount} ${newTransaction.currency}`);
 
-      // Keep transactions visible for 3 seconds, then remove them
+      // Post tweet for new transaction
+      if (parsedTransaction.amount && parsedTransaction.amount > 0) {
+        // Find issuer information for the tweet
+        const issuer = mapData.find(item => {
+          if (Array.isArray(item.issuer)) {
+            return item.issuer.includes(parsedTransaction.from) || item.issuer.includes(parsedTransaction.to);
+          }
+          return item.issuer === parsedTransaction.from || item.issuer === parsedTransaction.to;
+        });
+
+        const transactionForTweet = {
+          ...parsedTransaction,
+          issuer: issuer || { name: 'Unknown Asset' }
+        };
+
+        // Post tweet asynchronously (don't block the UI)
+        twitterIntegration.postTransactionUpdate(transactionForTweet)
+          .then(success => {
+            if (success) {
+              console.log('🐦 Tweet posted for transaction:', parsedTransaction.type, parsedTransaction.amount, parsedTransaction.currency);
+            }
+          })
+          .catch(error => {
+            console.error('🐦 Error posting tweet:', error);
+          });
+      }
+
+      // Keep transactions visible for 3 seconds (firework duration), then remove them
       setTimeout(() => {
         setTransactions(prev => prev.filter(t => t.id !== newTransaction.id));
       }, 3000);
@@ -233,6 +250,9 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
     if (isConnected && issuerAddresses.length > 0 && !stopPollingRef.current) {
       console.log('🔄 Reconnection detected - restarting transaction polling');
       const handleTransaction = (txData) => {
+        // Process transaction for volume tracking
+        volumeManager.processTransaction(txData);
+
         const parsedTransaction = parseTransaction(txData, mapData);
         if (!parsedTransaction) return;
 
@@ -243,32 +263,6 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
         if (!activeTransactionFilters.includes(parsedTransaction.type)) {
           console.log(`🚫 Reconnection - Filtered out: ${parsedTransaction.type} (not in active filters)`);
           return; // Skip this transaction type
-        }
-
-        // Record transaction in volume tracker for real on-chain volume calculation
-        if (parsedTransaction.amount && typeof parsedTransaction.amount === 'number' && parsedTransaction.amount > 0) {
-          // Find the issuer address for this transaction
-          const issuer = mapData.find(item => {
-            if (Array.isArray(item.issuer)) {
-              return item.issuer.includes(parsedTransaction.from) || item.issuer.includes(parsedTransaction.to);
-            }
-            return item.issuer === parsedTransaction.from || item.issuer === parsedTransaction.to;
-          });
-          
-          if (issuer) {
-            const issuerAddress = Array.isArray(issuer.issuer) 
-              ? (issuer.issuer.includes(parsedTransaction.from) ? parsedTransaction.from : parsedTransaction.to)
-              : issuer.issuer;
-            
-            volumeTracker.recordTransaction({
-              issuer: issuerAddress,
-              currency: parsedTransaction.currency,
-              amount: parsedTransaction.amount,
-              timestamp: parsedTransaction.timestamp
-            });
-            
-            console.log(`📈 Reconnection - Recorded volume: ${parsedTransaction.amount} ${parsedTransaction.currency} for ${issuer.name}`);
-          }
         }
 
         const newTransaction = {
@@ -416,9 +410,16 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
           pointLng={d => d.lng}
           pointColor={d => {
             // Enhanced point colors with glow effect
-            const baseColor = d.type === 'RWA' ? [0, 255, 136] : [255, 107, 107];
-            const intensity = Math.sin(animationTime * 0.001 + d.lat + d.lng) * 0.3 + 0.7;
-            return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${intensity})`;
+            if (d.isCluster) {
+              // Cluster points - rainbow effect based on cluster size
+              const hue = (d.clusterSize * 30) % 360;
+              const intensity = Math.sin(animationTime * 0.001 + d.lat + d.lng) * 0.3 + 0.7;
+              return `hsla(${hue}, 80%, 60%, ${intensity})`;
+            } else {
+              const baseColor = d.type === 'RWA' ? [0, 255, 136] : [255, 107, 107];
+              const intensity = Math.sin(animationTime * 0.001 + d.lat + d.lng) * 0.3 + 0.7;
+              return `rgba(${baseColor[0]}, ${baseColor[1]}, ${baseColor[2]}, ${intensity})`;
+            }
           }}
           pointAltitude={d => {
             // Variable altitude based on amount for visual hierarchy
@@ -426,72 +427,161 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
             return 0.02 + (logAmount / 100);
           }}
           pointRadius={d => {
-            // Variable radius based on amount
+            // Variable radius based on amount and cluster size
+            if (d.isCluster) {
+              return 1 + (d.clusterSize * 0.3); // Larger radius for clusters
+            }
             const logAmount = Math.log10(d.amount || 1);
             return 0.5 + (logAmount / 20);
           }}
-          pointLabel={d => `
-            <div style="
-              color: white; 
-              background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,40,0.9)); 
-              padding: 8px 12px; 
-              border-radius: 8px;
-              border: 1px solid ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};
-              box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-              backdrop-filter: blur(10px);
-            ">
-              <strong style="color: ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};">${d.name}</strong><br/>
-              📍 ${d.city}<br/>
-              💰 ${d.amount.toLocaleString()} ${d.currency}<br/>
-              <small style="opacity: 0.7;">${d.type} Asset</small>
-            </div>
-          `}
+          pointLabel={d => {
+            if (d.isCluster) {
+              // Cluster label showing all assets
+              const assetList = d.clusterItems.map(item => 
+                `${item.name} (${item.currency})`
+              ).join('<br/>');
+              
+              return `
+                <div style="
+                  color: white; 
+                  background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,40,0.95)); 
+                  padding: 12px 16px; 
+                  border-radius: 8px;
+                  border: 2px solid #ff6b6b;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                  backdrop-filter: blur(10px);
+                  max-width: 300px;
+                ">
+                  <strong style="color: #ff6b6b;">${d.clusterSize} Assets in ${d.city}</strong><br/>
+                  💰 Total: ${d.amount.toLocaleString()} ${d.currency}<br/>
+                  <div style="margin-top: 8px; font-size: 12px; opacity: 0.8;">
+                    ${assetList}
+                  </div>
+                </div>
+              `;
+            } else {
+              return `
+                <div style="
+                  color: white; 
+                  background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,40,0.9)); 
+                  padding: 8px 12px; 
+                  border-radius: 8px;
+                  border: 1px solid ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                  backdrop-filter: blur(10px);
+                ">
+                  <strong style="color: ${d.type === 'RWA' ? '#00ff88' : '#ff6b6b'};">${d.name}</strong><br/>
+                  📍 ${d.city}<br/>
+                  💰 ${d.amount.toLocaleString()} ${d.currency}<br/>
+                  <small style="opacity: 0.7;">${d.type} Asset</small>
+                </div>
+              `;
+            }
+          }}
           ringsData={transactions}
           ringLat={d => d.lat}
           ringLng={d => d.lng}
           ringMaxRadius={d => {
-            // Variable ring size based on transaction amount
+            // Simple expanding ring effect
+            const time = (Date.now() - d.timestamp) / 2000; // 2 second animation
+            const progress = Math.min(time, 1);
             const logAmount = Math.log10(d.amount || 1);
-            return 2 + (logAmount / 5);
+            const baseRadius = 1 + (logAmount / 10);
+            
+            // Ring expands outward smoothly
+            return baseRadius + (progress * 3);
           }}
-          ringPropagationSpeed={d => d.type === 'Payment' ? 4 : 2} // Faster for payments
-          ringRepeatPeriod={2000}
+          ringPropagationSpeed={d => 3} // Consistent speed
+          ringRepeatPeriod={2000} // 2 second cycle
           ringColor={d => {
-            // Enhanced ring colors with opacity gradient
-            if (!d.color) return 'rgba(255, 255, 255, 0.5)';
-            const alpha = Math.sin(animationTime * 0.003) * 0.3 + 0.7;
-            // Extract RGB from hex color or use the color directly if it's already rgba
+            // Clean, bright ring colors
+            if (!d.color) return 'rgba(255, 255, 255, 0.6)';
+            
+            const time = (Date.now() - d.timestamp) / 2000;
+            const progress = Math.min(time, 1);
+            
+            // Fade out as ring expands
+            const alpha = (1 - progress) * 0.8;
+            
             if (d.color.startsWith('#')) {
               const r = parseInt(d.color.slice(1, 3), 16);
               const g = parseInt(d.color.slice(3, 5), 16);
               const b = parseInt(d.color.slice(5, 7), 16);
               return `rgba(${r}, ${g}, ${b}, ${alpha})`;
             }
-            return d.color; // Return as-is if already in rgba format
+            return d.color;
           }}
-          ringResolution={128} // Higher resolution for smoother rings
-          // Enhanced arcs with more dynamic behavior
+          ringResolution={32} // Optimized for performance
+          // Enhanced arcs with firework effect
           arcsData={transactions}
           arcStartLat={d => d.lat}
           arcStartLng={d => d.lng}
           arcEndLat={d => {
-            // More sophisticated arc destinations
-            const range = d.type === 'Payment' ? 30 : 15;
-            return d.lat + (Math.random() - 0.5) * range;
+            // Arc trajectory that goes up and lands back down
+            const time = (Date.now() - d.timestamp) / 2000; // 2 second animation
+            const progress = Math.min(time, 1);
+            
+            // Create a parabolic arc that goes up and comes back down
+            const arcHeight = Math.sin(progress * Math.PI) * 0.3; // Peak at middle of animation
+            const horizontalDistance = progress * 0.4; // Total horizontal distance
+            
+            // Calculate end position with arc trajectory
+            const endLat = d.lat + horizontalDistance;
+            return endLat;
           }}
           arcEndLng={d => {
-            const range = d.type === 'Payment' ? 30 : 15;
-            return d.lng + (Math.random() - 0.5) * range;
+            const time = (Date.now() - d.timestamp) / 2000;
+            const progress = Math.min(time, 1);
+            
+            // Create a parabolic arc that goes up and comes back down
+            const arcHeight = Math.sin(progress * Math.PI) * 0.3; // Peak at middle of animation
+            const horizontalDistance = progress * 0.4; // Total horizontal distance
+            
+            // Calculate end position with arc trajectory
+            const endLng = d.lng + horizontalDistance;
+            return endLng;
           }}
-          arcColor={d => d.color}
+          arcColor={d => {
+            // Clean, simple arc colors
+            if (!d.color) return 'rgba(255, 255, 255, 0.5)';
+            
+            const time = (Date.now() - d.timestamp) / 2000;
+            const progress = Math.min(time, 1);
+            
+            // Simple fade out effect
+            const alpha = (1 - progress) * 0.7;
+            
+            if (d.color.startsWith('#')) {
+              const r = parseInt(d.color.slice(1, 3), 16);
+              const g = parseInt(d.color.slice(3, 5), 16);
+              const b = parseInt(d.color.slice(5, 7), 16);
+              return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            }
+            return d.color;
+          }}
           arcAltitude={d => {
-            // Variable arc height based on transaction type
-            return d.type === 'Payment' ? 0.4 : 0.25;
+            // Parabolic arc that goes up and lands back down
+            const time = (Date.now() - d.timestamp) / 2000;
+            const progress = Math.min(time, 1);
+            
+            // Create a parabolic trajectory: starts at ground, goes up, comes back down
+            const arcHeight = Math.sin(progress * Math.PI) * 0.4; // Peak height at middle
+            
+            // Base height varies by transaction type
+            const baseHeight = d.type === 'Payment' ? 0.1 : 0.05;
+            
+            return baseHeight + arcHeight;
           }}
-          arcStroke={d => d.type === 'Payment' ? 1 : 0.5}
+          arcStroke={d => {
+            // Simple arc stroke
+            return d.type === 'Payment' ? 1 : 0.5;
+          }}
           arcDashLength={3}
           arcDashGap={2}
-          arcDashAnimateTime={d => d.type === 'Payment' ? 2000 : 3000}
+          arcDashAnimateTime={d => {
+            // Simple animation speed
+            return d.type === 'Payment' ? 1500 : 2000;
+          }}
           objectsData={realEstateOverlay.objectsData}
           objectLat={realEstateOverlay.objectLat}
           objectLng={realEstateOverlay.objectLng}

@@ -1040,7 +1040,13 @@ a {
     margin-bottom: 3px;
   }
   
-  .asset-issuer {
+  .asset-issuer-container {
+    font-size: 0.7rem;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+  
+  .asset-issuer-link {
     font-size: 0.7rem;
     word-break: break-all;
     overflow-wrap: break-word;
@@ -1220,19 +1226,22 @@ a {
   margin: 0 0 4px 0;
 }
 
-.asset-issuer {
-  font-size: 0.8rem;
-  color: #888888;
-  margin: 0 0 4px 0;
-  font-family: monospace;
-  text-decoration: none;
-  transition: all 0.2s ease-in-out;
+.asset-issuer-container {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin: 0 0 4px 0;
 }
 
-.asset-issuer:hover {
+.asset-issuer-link {
+  font-size: 0.8rem;
+  color: #888888;
+  font-family: monospace;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.asset-issuer-link:hover {
   color: #00ff88;
   text-decoration: underline;
 }
@@ -2184,4 +2193,5 @@ a {
   .mobile-pullup-tab.expanded {
     transform: translateY(0);
   }
+  
 }
