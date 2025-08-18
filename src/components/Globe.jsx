@@ -521,8 +521,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
             const time = (Date.now() - d.timestamp) / 2000; // 2 second animation
             const progress = Math.min(time, 1);
             
-            // Create a parabolic arc that goes up and comes back down
-            const arcHeight = Math.sin(progress * Math.PI) * 0.3; // Peak at middle of animation
+            // Calculate horizontal distance for arc trajectory
             const horizontalDistance = progress * 0.4; // Total horizontal distance
             
             // Calculate end position with arc trajectory
@@ -533,8 +532,7 @@ const Globe = ({ onTransactionUpdate, rwaData, stablecoinData, activeTransaction
             const time = (Date.now() - d.timestamp) / 2000;
             const progress = Math.min(time, 1);
             
-            // Create a parabolic arc that goes up and comes back down
-            const arcHeight = Math.sin(progress * Math.PI) * 0.3; // Peak at middle of animation
+            // Calculate horizontal distance for arc trajectory
             const horizontalDistance = progress * 0.4; // Total horizontal distance
             
             // Calculate end position with arc trajectory

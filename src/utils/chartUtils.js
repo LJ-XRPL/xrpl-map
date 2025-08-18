@@ -65,7 +65,6 @@ export const renderMarketCapGrowthScatter = (assets) => {
   const padding = 20;
 
   const maxAmount = Math.max(...assets.map(a => a.amount || 0));
-  const maxAmountLog = Math.log10(maxAmount || 1);
 
   return (
     <svg width={width} height={height} className="scatter-plot">
