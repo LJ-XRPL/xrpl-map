@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import Stablecoins from './components/Stablecoins';
 import TransactionFeed from './components/TransactionFeed';
 import VolumeBreakdownModal from './components/VolumeBreakdownModal';
+import VoiceQuery from './components/VoiceQuery';
 
 import rwaData from './data/rwas.js';
 import stablecoinData from './data/stablecoins.js';
@@ -33,6 +34,21 @@ function App() {
   const [activeTransactionFilters, setActiveTransactionFilters] = useState([
     'Payment', 'OfferCreate', 'OfferCancel', 'TrustSet', 'EscrowCreate', 'EscrowFinish', 'NFTokenMint', 'CheckCreate', 'CheckCash'
   ]); 
+  const [voiceQueryResult, setVoiceQueryResult] = useState(null);
+  const [voiceResponse, setVoiceResponse] = useState(null);
+  
+  // Use voice query results for debugging/logging
+  useEffect(() => {
+    if (voiceQueryResult) {
+      console.log('🎤 Voice query processed:', voiceQueryResult);
+    }
+  }, [voiceQueryResult]);
+  
+  useEffect(() => {
+    if (voiceResponse) {
+      console.log('🔊 Voice response received:', voiceResponse);
+    }
+  }, [voiceResponse]);
   // Chain selector state - commented out for now
   // const [selectedChain, setSelectedChain] = useState('xrpl');
   // const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
@@ -283,6 +299,18 @@ function App() {
       />
       
       <Analytics />
+      
+      {/* Voice Query Interface - Floating Button */}
+      <VoiceQuery 
+        onQueryResult={(query, transcript) => {
+          setVoiceQueryResult({ query, transcript });
+          console.log('🎤 Voice query:', transcript, query);
+        }}
+        onVoiceResponse={(response, naturalResponse) => {
+          setVoiceResponse({ response, naturalResponse });
+          console.log('🔊 Voice response:', naturalResponse);
+        }}
+      />
     </div>
   );
 }
